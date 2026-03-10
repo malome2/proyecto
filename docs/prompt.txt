@@ -32,7 +32,7 @@ TECNOLOGÍAS DEFINIDAS (NO CAMBIAR):
 
 BASE DE DATOS (RESUMEN):
 - usuarios(id, username, email, password_hash, role, created_at)
-- juegos(id, titulo, descripcion, imagen_cuadro, imagen_juego, video_url, musica_url, pos_x, pos_y, creado_por)
+- juegos(id, titulo, descripcion, imagen, video_url, musica_url, pos_x, pos_y, created_by)
 - recomendaciones(id, titulo, descripcion, usuario_id, estado)
 
 RESTRICCIONES IMPORTANTES:
