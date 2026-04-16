@@ -19,7 +19,7 @@ FUNCIONALIDADES:
 - Administradores pueden:
   - Añadir, editar y eliminar juegos (cuadros) del museo
   - Subir imágenes, música y vídeos
-  - Aprobar recomendaciones de usuarios
+  - Aprobar recomendaciones de usuarios y editarlas antes de aceptarlas
 - Todo el contenido del museo se carga dinámicamente desde base de datos.
 
 TECNOLOGÍAS DEFINIDAS (NO CAMBIAR):

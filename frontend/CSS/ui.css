@@ -1,0 +1,182 @@
+/* ─── LAYOUT ─────────────────────────────────────────── */
+
+.page-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+.section     { padding: 72px 0; }
+.section-sm  { padding: 48px 0; }
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+.container-narrow {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+}
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+/* ─── TYPOGRAPHY ─────────────────────────────────────── */
+
+.section-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.25;
+  margin-bottom: 14px;
+}
+
+.section-subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  max-width: 560px;
+}
+
+/* ─── CARD ───────────────────────────────────────────── */
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+}
+
+/* ─── BUTTONS ────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 22px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: background 0.2s, transform 0.1s;
+  border: none;
+}
+
+.btn:active { transform: scale(0.98); }
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--accent-hover); }
+
+.btn-outline {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+.btn-outline:hover { background: rgba(255,255,255,0.04); }
+
+/* ─── FORMS ──────────────────────────────────────────── */
+
+.form-group    { margin-bottom: 18px; }
+
+.form-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 7px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 11px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder { color: var(--text-muted); }
+
+.form-input:focus,
+.form-textarea:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(61,143,181,0.12);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* ─── FEEDBACK MESSAGES ──────────────────────────────── */
+
+.msg {
+  margin-top: 14px;
+  padding: 11px 14px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-align: center;
+  display: none;
+}
+
+.msg.error {
+  background: var(--error-bg);
+  color: var(--error-text);
+  border: 1px solid rgba(224,92,110,0.2);
+  display: block;
+}
+
+.msg.success {
+  background: var(--success-bg);
+  color: var(--success-text);
+  border: 1px solid rgba(76,175,132,0.2);
+  display: block;
+}
+
+/* ─── PAGE HEADER ────────────────────────────────────── */
+
+.page-header {
+  padding: 64px 0 48px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ─── RESPONSIVE ─────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .section          { padding: 48px 0; }
+  .section-title    { font-size: 1.5rem; }
+  .container        { padding: 0 20px; }
+  .container-narrow { padding: 0 20px; }
+}

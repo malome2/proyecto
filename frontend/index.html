@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inicio — Museo de Videojuegos</title>
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/nav.css" />
+  <link rel="stylesheet" href="css/ui.css" />
+  <link rel="stylesheet" href="css/index.css" />
+</head>
+<body>
+  <div class="page-wrapper">
+
+    <!-- HERO -->
+    <section class="hero section">
+      <div class="container">
+        <div class="hero-content">
+          <div class="hero-badge">
+            <span class="hero-badge-dot"></span>
+            Experiencia interactiva en primera persona
+          </div>
+          <h1 class="hero-title">El Museo Virtual<br/>de <span>Videojuegos</span></h1>
+          <p class="hero-desc">
+            Explora la historia de los videojuegos paseando por nuestro museo virtual.
+            Acércate a cada cuadro para descubrir la historia, imagen, gameplay y música
+            de los juegos que marcaron una época.
+          </p>
+          <div class="hero-actions">
+            <a href="museo.html" class="btn btn-primary">Entrar al museo &rarr;</a>
+            <a href="us.html" class="btn btn-outline">Quiénes somos</a>
+          </div>
+        </div>
+        <div class="hero-visual"></div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- STATS -->
+    <section class="section-sm">
+      <div class="container">
+        <div class="stats-row">
+          <div class="stat-item">
+            <div class="stat-value" id="stat-juegos">—</div>
+            <div class="stat-label">Juegos en el museo</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">2.5D</div>
+            <div class="stat-label">Experiencia raycasting</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">Free</div>
+            <div class="stat-label">Acceso gratuito</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">Open</div>
+            <div class="stat-label">Recomendaciones abiertas</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- FEATURES -->
+    <section class="section">
+      <div class="container">
+        <div style="margin-bottom: 40px;">
+          <div class="section-label">¿Qué encontrarás?</div>
+          <h2 class="section-title">Una experiencia única</h2>
+          <p class="section-subtitle">
+            Navega por el museo, descubre juegos y comparte tus recomendaciones con la comunidad.
+          </p>
+        </div>
+        <div class="grid-3">
+          <div class="feature-card">
+            <div class="feature-icon"><img src="img/icon.svg" alt="" /></div>
+            <div class="feature-title">Exploración en primera persona</div>
+            <div class="feature-desc">Muévete por el museo con las teclas WASD en una experiencia estilo Doom clásico renderizada en Canvas.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon"><img src="img/icon.svg" alt="" /></div>
+            <div class="feature-title">Multimedia por juego</div>
+            <div class="feature-desc">Cada cuadro tiene imagen, vídeo de gameplay y música original. Al acercarte, se activa automáticamente.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon"><img src="img/icon.svg" alt="" /></div>
+            <div class="feature-title">Recomienda un juego</div>
+            <div class="feature-desc">¿Falta tu juego favorito? Envíanos una recomendación. Los administradores la revisarán y podrán añadirlo.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- RECOMMEND FORM -->
+    <section class="section" id="recomienda">
+      <div class="container-narrow">
+        <div class="recommend-wrapper">
+          <div class="recommend-header">
+            <div class="section-label">Comunidad</div>
+            <h2 class="section-title">Recomienda un juego</h2>
+            <p class="section-subtitle">
+              ¿Hay un juego que crees que debería estar en el museo? Cuéntanos cuál y por qué.
+            </p>
+            <div class="login-notice" id="login-notice" style="display:none">
+              Debes <a href="login.html">iniciar sesión</a> para enviar una recomendación.
+            </div>
+          </div>
+
+          <form id="form-recomendar" onsubmit="handleRecomendacion(event)">
+            <div class="form-group">
+              <label class="form-label" for="rec-titulo">Título del juego</label>
+              <input class="form-input" type="text" id="rec-titulo" placeholder="p.ej. Half-Life 2" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="rec-desc">¿Por qué debería estar en el museo?</label>
+              <textarea class="form-textarea" id="rec-desc" placeholder="Describe brevemente el juego y su importancia..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" id="btn-recomendar" style="width:100%">
+              Enviar recomendación
+            </button>
+            <div class="msg" id="msg-recomendar"></div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/index.js"></script>
+</body>
+</html>

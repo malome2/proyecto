@@ -9,7 +9,22 @@ const usuariosRoutes = require('./routes/usuarios.routes');
 
 const app = express();
 
-app.use(cors());
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',')
+  : ['http://localhost:5500', 'http://127.0.0.1:5500', 'http://localhost:3000'];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Permite peticiones sin origin (Postman, curl) y orígenes en la lista
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS: origen no permitido — ${origin}`));
+    }
+  },
+  credentials: true
+}));
+
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 
@@ -22,6 +37,7 @@ app.get('/', (req, res) => {
   res.send('API Museo Videojuegos funcionando');
 });
 
-app.listen(3000, () => {
-  console.log('Servidor iniciado en puerto 3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor iniciado en puerto ${PORT}`);
 });

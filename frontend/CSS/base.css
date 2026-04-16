@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-base:        #080c14;
+  --bg-card:        #0e1420;
+  --bg-input:       #0b1019;
+  --border:         #1c2437;
+  --border-focus:   #4a9ebb;
+  --accent:         #3d8fb5;
+  --accent-hover:   #4fa8d0;
+  --text-primary:   #dce3ed;
+  --text-secondary: #6b7a93;
+  --text-muted:     #38475e;
+  --success-bg:     #091510;
+  --success-text:   #4caf84;
+  --error-bg:       #140a0a;
+  --error-text:     #e05c6e;
+  --nav-height:     60px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  min-height: 100vh;
+  background: var(--bg-base);
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  color: var(--text-primary);
+  padding-top: var(--nav-height);
+}
+
+/* Subtle background grid */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px);
+  background-size: 56px 56px;
+  pointer-events: none;
+  z-index: 0;
+}

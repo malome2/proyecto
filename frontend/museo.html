@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Museo — Museo de Videojuegos</title>
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/nav.css" />
+  <link rel="stylesheet" href="css/museo.css" />
+</head>
+<body>
+  <div class="museo-layout">
+
+    <div class="canvas-area">
+      <canvas id="game-canvas" style="display:none"></canvas>
+      <div class="canvas-placeholder" id="canvas-placeholder">
+        <div class="canvas-placeholder-icon"><img src="img/logo.svg" alt="Logo" /></div>
+        <div class="canvas-placeholder-title">Museo en construcción</div>
+        <div class="canvas-placeholder-sub">La experiencia interactiva estará disponible próximamente</div>
+      </div>
+    </div>
+
+    <div class="hud-bar">
+      <div class="hud-item">
+        <span class="hud-key">W</span>
+        <span class="hud-key">A</span>
+        <span class="hud-key">S</span>
+        <span class="hud-key">D</span>
+        <span>Mover</span>
+      </div>
+      <div class="hud-sep"></div>
+      <div class="hud-item">
+        <span class="hud-key">←</span>
+        <span class="hud-key">→</span>
+        <span>Girar</span>
+      </div>
+      <div class="hud-sep"></div>
+      <div class="hud-item">
+        <span class="hud-key">E</span>
+        <span>Interactuar</span>
+      </div>
+      <div class="hud-game-info">
+        <span class="hud-game-title" id="hud-game-title">—</span>
+        <span class="hud-badge" id="hud-badge" style="display:none">Cerca</span>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/nav.js"></script>
+  <script src="js/museo.js"></script>
+</body>
+</html>

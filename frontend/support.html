@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support — Museo de Videojuegos</title>
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/nav.css" />
+  <link rel="stylesheet" href="css/ui.css" />
+  <link rel="stylesheet" href="css/support.css" />
+</head>
+<body>
+  <div class="page-wrapper">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="container-narrow">
+        <div class="section-label">Apoya el proyecto</div>
+        <h1 class="section-title">Support</h1>
+        <p class="section-subtitle">
+          El museo es completamente gratuito. Si quieres ayudarnos a mantenerlo y seguir ampliando la colección,
+          cualquier aportación es bienvenida.
+        </p>
+      </div>
+    </div>
+
+    <!-- TIERS -->
+    <section class="section">
+      <div class="container">
+        <div style="margin-bottom: 32px;">
+          <div class="section-label">Niveles de apoyo</div>
+          <h2 class="section-title" style="font-size: 1.4rem;">Elige tu contribución</h2>
+        </div>
+
+        <div class="tier-grid">
+          <div class="tier-card">
+            <div class="tier-icon"><img src="img/icon.svg" alt="" /></div>
+            <div class="tier-name">Visitante</div>
+            <div class="tier-price">3€ <span>/ única vez</span></div>
+            <div class="tier-desc">El equivalente a un café. Nos ayuda a pagar el servidor un día más.</div>
+            <ul class="tier-perks">
+              <li>Acceso completo al museo</li>
+              <li>Nuestro agradecimiento eterno</li>
+            </ul>
+            <button class="btn btn-outline" onclick="selectTier(3)">Donar 3€</button>
+          </div>
+
+          <div class="tier-card featured">
+            <div class="tier-badge">Popular</div>
+            <div class="tier-icon"><img src="img/logo.svg" alt="" /></div>
+            <div class="tier-name">Coleccionista</div>
+            <div class="tier-price">10€ <span>/ única vez</span></div>
+            <div class="tier-desc">Ayuda a costear el hosting mensual y a añadir nuevos juegos a la colección.</div>
+            <ul class="tier-perks">
+              <li>Acceso completo al museo</li>
+              <li>Tu nombre en los créditos</li>
+              <li>Prioridad en recomendaciones</li>
+            </ul>
+            <button class="btn btn-primary" onclick="selectTier(10)">Donar 10€</button>
+          </div>
+
+          <div class="tier-card">
+            <div class="tier-icon"><img src="img/icon.svg" alt="" /></div>
+            <div class="tier-name">Arcade</div>
+            <div class="tier-price">25€ <span>/ única vez</span></div>
+            <div class="tier-desc">Una aportación excepcional que nos permite mejorar la experiencia del museo.</div>
+            <ul class="tier-perks">
+              <li>Acceso completo al museo</li>
+              <li>Tu nombre en los créditos</li>
+              <li>Prioridad en recomendaciones</li>
+              <li>Puedes proponer un juego directamente</li>
+            </ul>
+            <button class="btn btn-outline" onclick="selectTier(25)">Donar 25€</button>
+          </div>
+        </div>
+
+        <!-- Custom amount -->
+        <div class="custom-donate">
+          <div style="margin-bottom: 24px;">
+            <h3 style="font-size:1rem; font-weight:600; color:var(--text-primary); margin-bottom:6px;">
+              Cantidad personalizada
+            </h3>
+            <p style="font-size:0.83rem; color:var(--text-secondary);">
+              También puedes elegir la cantidad que quieras.
+            </p>
+          </div>
+
+          <div class="amount-grid">
+            <button class="amount-btn" onclick="selectAmount(1)">1€</button>
+            <button class="amount-btn" onclick="selectAmount(5)">5€</button>
+            <button class="amount-btn" onclick="selectAmount(15)">15€</button>
+            <button class="amount-btn" onclick="selectAmount(50)">50€</button>
+          </div>
+
+          <div class="amount-custom-row">
+            <input class="form-input" type="number" id="donate-amount" placeholder="Otra cantidad (€)" min="1" />
+            <button class="btn btn-primary" onclick="handleDonate()">Donar ahora</button>
+          </div>
+          <div class="msg" id="msg-donate"></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- FAQ -->
+    <section class="section">
+      <div class="container-narrow">
+        <div style="margin-bottom: 32px;">
+          <div class="section-label">Preguntas frecuentes</div>
+          <h2 class="section-title" style="font-size: 1.4rem;">FAQ</h2>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">¿Es obligatorio donar para usar el museo?</div>
+          <div class="faq-a">No. El museo es completamente gratuito y siempre lo será. Las donaciones son voluntarias y nos ayudan a mantener el proyecto activo.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">¿Cómo se procesan los pagos?</div>
+          <div class="faq-a">Los pagos se procesarán de forma segura a través de PayPal. No almacenamos ningún dato bancario en nuestros servidores.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">¿Puedo pedir un reembolso?</div>
+          <div class="faq-a">Al tratarse de una donación voluntaria a un proyecto sin ánimo de lucro, no ofrecemos reembolsos. Si tienes algún problema, contáctanos.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">¿En qué se usa el dinero?</div>
+          <div class="faq-a">Principalmente en el hosting del servidor y la base de datos. El tiempo de desarrollo es completamente voluntario.</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="js/nav.js"></script>
+  <script src="js/support.js"></script>
+</body>
+</html>

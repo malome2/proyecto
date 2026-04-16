@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiénes somos — Museo de Videojuegos</title>
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/nav.css" />
+  <link rel="stylesheet" href="css/ui.css" />
+  <link rel="stylesheet" href="css/us.css" />
+</head>
+<body>
+  <div class="page-wrapper">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="container-narrow">
+        <div class="section-label">El proyecto</div>
+        <h1 class="section-title">Quiénes somos</h1>
+        <p class="section-subtitle">
+          El Museo Virtual de Videojuegos es un proyecto final de ciclo DAW que combina
+          tecnología web moderna con una experiencia interactiva única.
+        </p>
+      </div>
+    </div>
+
+    <!-- ABOUT -->
+    <section class="section">
+      <div class="container-narrow">
+
+        <div class="highlight-card" style="margin-bottom: 40px;">
+          <p>
+            "Un museo no es un archivo de objetos: es un espacio donde los objetos cobran vida.
+            Este proyecto busca hacer lo mismo con los videojuegos que han marcado la historia."
+          </p>
+        </div>
+
+        <div class="prose">
+          <p>
+            El <strong>Museo Virtual de Videojuegos</strong> nació como proyecto final del ciclo formativo
+            de Desarrollo de Aplicaciones Web (DAW). La idea es simple: crear un espacio donde cualquier
+            persona pueda explorar y descubrir videojuegos históricos de una forma distinta a la habitual.
+          </p>
+          <p>
+            En lugar de una simple lista o galería, el museo propone una <strong>experiencia en primera persona</strong>
+            inspirada en los shooters clásicos de los años 90. El usuario se mueve por un pasillo con cuadros en
+            las paredes, y al acercarse a cada uno descubre la historia del juego, su imagen, un vídeo de gameplay
+            y su música original.
+          </p>
+          <p>
+            La colección del museo es dinámica: los <strong>administradores</strong> pueden añadir, editar y eliminar
+            juegos desde un panel de control. Los <strong>usuarios registrados</strong> pueden enviar recomendaciones
+            de juegos que quieran ver en el museo, y los administradores las revisan antes de añadirlas.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- TECH STACK -->
+    <section class="section">
+      <div class="container-narrow">
+        <div style="margin-bottom: 28px;">
+          <div class="section-label">Stack tecnológico</div>
+          <h2 class="section-title" style="font-size: 1.4rem;">Construido con</h2>
+        </div>
+        <div class="tech-grid">
+          <div class="tech-item">
+            <div class="tech-icon"><img src="img/icon.svg" alt="" /></div>
+            <div>
+              <div class="tech-name">JavaScript</div>
+              <div class="tech-role">Frontend + Canvas</div>
+            </div>
+          </div>
+          <div class="tech-item">
+            <div class="tech-icon"><img src="img/icon.svg" alt="" /></div>
+            <div>
+              <div class="tech-name">Node.js + Express</div>
+              <div class="tech-role">Backend API REST</div>
+            </div>
+          </div>
+          <div class="tech-item">
+            <div class="tech-icon"><img src="img/icon.svg" alt="" /></div>
+            <div>
+              <div class="tech-name">MySQL</div>
+              <div class="tech-role">Base de datos</div>
+            </div>
+          </div>
+          <div class="tech-item">
+            <div class="tech-icon"><img src="img/icon.svg" alt="" /></div>
+            <div>
+              <div class="tech-name">JWT + bcrypt</div>
+              <div class="tech-role">Autenticación</div>
+            </div>
+          </div>
+          <div class="tech-item">
+            <div class="tech-icon"><img src="img/icon.svg" alt="" /></div>
+            <div>
+              <div class="tech-name">Multer</div>
+              <div class="tech-role">Subida de archivos</div>
+            </div>
+          </div>
+          <div class="tech-item">
+            <div class="tech-icon"><img src="img/icon.svg" alt="" /></div>
+            <div>
+              <div class="tech-name">HTML5 Canvas</div>
+              <div class="tech-role">Raycasting 2.5D</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- CTA -->
+    <section class="section-sm">
+      <div class="container-narrow" style="text-align:center; padding-top:16px; padding-bottom:16px;">
+        <p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:20px;">
+          ¿Quieres apoyar el proyecto o sugerir un juego?
+        </p>
+        <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+          <a href="support.html" class="btn btn-primary">Apoyar el proyecto</a>
+          <a href="index.html#recomienda" class="btn btn-outline">Recomendar un juego</a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="js/nav.js"></script>
+  <script>renderNav('us');</script>
+</body>
+</html>

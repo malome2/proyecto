@@ -26,6 +26,22 @@ router.post('/', verifyToken, async (req, res) => {
 });
 
 // ---------------------------------------------------------------------------
+// GET /api/recomendaciones/mis — recomendaciones del usuario autenticado
+// ---------------------------------------------------------------------------
+router.get('/mis', verifyToken, async (req, res) => {
+    try {
+        const [rows] = await db.query(
+            'SELECT id, titulo, descripcion, estado FROM recomendaciones WHERE usuario_id = ? ORDER BY id DESC',
+            [req.user.id]
+        );
+        res.json(rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error del servidor' });
+    }
+});
+
+// ---------------------------------------------------------------------------
 // GET /api/recomendaciones — listar todas las recomendaciones (solo ADMIN)
 // Devuelve también el username del usuario que la envió.
 // ---------------------------------------------------------------------------
@@ -39,6 +55,28 @@ router.get('/', verifyAdmin, async (req, res) => {
              ORDER BY r.id DESC`
         );
         res.json(rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error del servidor' });
+    }
+});
+
+// ---------------------------------------------------------------------------
+// PUT /api/recomendaciones/:id — editar recomendación antes de aprobar (solo ADMIN)
+// Body: { titulo?, descripcion? }
+// ---------------------------------------------------------------------------
+router.put('/:id', verifyAdmin, async (req, res) => {
+    const { titulo, descripcion } = req.body;
+
+    try {
+        const [rows] = await db.query('SELECT id FROM recomendaciones WHERE id = ?', [req.params.id]);
+        if (rows.length === 0) return res.status(404).json({ error: 'Recomendación no encontrada' });
+
+        await db.query(
+            'UPDATE recomendaciones SET titulo = COALESCE(?, titulo), descripcion = COALESCE(?, descripcion) WHERE id = ?',
+            [titulo || null, descripcion || null, req.params.id]
+        );
+        res.json({ message: 'Recomendación actualizada' });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Error del servidor' });

@@ -1,0 +1,131 @@
+body { overflow: hidden; }
+
+.museo-layout {
+  height: calc(100vh - var(--nav-height));
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+}
+
+/* Canvas area */
+.canvas-area {
+  flex: 1;
+  background: #05080f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Scanlines */
+.canvas-area::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0,0,0,0.15) 3px,
+    rgba(0,0,0,0.15) 4px
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+.canvas-placeholder {
+  text-align: center;
+  z-index: 3;
+}
+
+.canvas-placeholder-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+  opacity: 0.3;
+}
+
+.canvas-placeholder-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.canvas-placeholder-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.canvas-placeholder-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+}
+
+/* HUD bar */
+.hud-bar {
+  height: 52px;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 32px;
+}
+
+.hud-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.hud-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.hud-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+}
+
+.hud-game-info {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hud-game-title {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.hud-badge {
+  padding: 3px 8px;
+  background: rgba(61,143,181,0.1);
+  border: 1px solid rgba(61,143,181,0.2);
+  border-radius: 4px;
+  font-size: 0.7rem;
+  color: var(--accent);
+}
