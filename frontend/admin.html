@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Museo de Videojuegos</title>
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/nav.css" />
+  <link rel="stylesheet" href="css/ui.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- ─── CABECERA + TABS ─────────────────────────────── -->
+  <div class="admin-header">
+    <div class="container">
+      <div class="section-label">Panel</div>
+      <h1 class="admin-title">Administración</h1>
+      <div class="tab-bar" id="main-tabs">
+        <button class="tab-btn active" data-tab="juegos">Juegos</button>
+        <button class="tab-btn" data-tab="recomendaciones">Recomendaciones</button>
+        <button class="tab-btn" data-tab="usuarios">Usuarios</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── PANEL: JUEGOS ────────────────────────────────── -->
+  <div class="tab-panel active" id="panel-juegos">
+    <div class="container">
+      <div class="section-bar">
+        <h2>Juegos del museo</h2>
+        <button class="btn btn-primary" onclick="openGameModal()">+ Añadir juego</button>
+      </div>
+      <div class="table-wrapper card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Imagen</th>
+              <th>Título</th>
+<th>Vídeo</th>
+              <th>Música</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tbody-juegos">
+            <tr class="empty-row"><td colspan="5">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── PANEL: RECOMENDACIONES ───────────────────────── -->
+  <div class="tab-panel" id="panel-recomendaciones">
+    <div class="container">
+      <div class="section-bar">
+        <h2>Recomendaciones</h2>
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="filterRecs('pendiente', this)">Pendientes</button>
+          <button class="filter-btn" onclick="filterRecs('aprobado', this)">Aprobadas</button>
+          <button class="filter-btn" onclick="filterRecs('', this)">Todas</button>
+        </div>
+      </div>
+      <div class="table-wrapper card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Título</th>
+              <th>Usuario</th>
+              <th>Descripción</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tbody-recs">
+            <tr class="empty-row"><td colspan="5">Selecciona la pestaña para cargar.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── PANEL: USUARIOS ──────────────────────────────── -->
+  <div class="tab-panel" id="panel-usuarios">
+    <div class="container">
+      <div class="section-bar">
+        <h2>Usuarios registrados</h2>
+      </div>
+      <div class="table-wrapper card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Email</th>
+              <th>Rol</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tbody-usuarios">
+            <tr class="empty-row"><td colspan="4">Selecciona la pestaña para cargar.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ─── MODAL: JUEGO ─────────────────────────────────────── -->
+<div class="modal-overlay" id="modal-juego">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-juego-title">Añadir juego</h3>
+      <button class="modal-close" onclick="closeModal('modal-juego')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="form-juego" onsubmit="saveGame(event)">
+        <input type="hidden" id="juego-id" />
+
+        <div class="form-group">
+          <label class="form-label">Título *</label>
+          <input class="form-input" type="text" id="juego-titulo" placeholder="p.ej. DOOM (1993)" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Descripción</label>
+          <textarea class="form-textarea" id="juego-descripcion" placeholder="Historia y contexto del juego..."></textarea>
+        </div>
+
+<div class="form-group">
+          <label class="form-label">Imagen</label>
+          <input class="form-file" type="file" id="juego-imagen" accept="image/*" />
+          <p class="file-hint" id="hint-imagen"></p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">URL de vídeo (YouTube, etc.)</label>
+          <input class="form-input" type="text" id="juego-video-url" placeholder="https://youtube.com/..." />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">o archivo de vídeo</label>
+          <input class="form-file" type="file" id="juego-video" accept="video/*" />
+          <p class="file-hint" id="hint-video"></p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Música</label>
+          <input class="form-file" type="file" id="juego-musica" accept="audio/*" />
+          <p class="file-hint" id="hint-musica"></p>
+        </div>
+
+        <div class="msg" id="msg-juego"></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" type="button" onclick="closeModal('modal-juego')">Cancelar</button>
+      <button class="btn btn-primary" type="submit" form="form-juego" id="btn-save-juego">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODAL: RECOMENDACIÓN ─────────────────────────────── -->
+<div class="modal-overlay" id="modal-rec">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Editar recomendación</h3>
+      <button class="modal-close" onclick="closeModal('modal-rec')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="form-rec" onsubmit="saveRec(event)">
+        <input type="hidden" id="rec-id" />
+        <div class="form-group">
+          <label class="form-label">Título</label>
+          <input class="form-input" type="text" id="rec-titulo" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descripción</label>
+          <textarea class="form-textarea" id="rec-desc"></textarea>
+        </div>
+        <div class="msg" id="msg-rec"></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" type="button" onclick="closeModal('modal-rec')">Cancelar</button>
+      <button class="btn btn-primary" type="submit" form="form-rec">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>
