@@ -21,20 +21,16 @@
 }
 
 .nav-brand-icon {
-  width: 30px;
-  height: 30px;
-  background: linear-gradient(135deg, #1e3a52, #2a5470);
-  border: 1px solid rgba(61,143,181,0.3);
-  border-radius: 7px;
+  width: 100px;
+  height: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
 }
 
 .nav-brand-icon img {
-  width: 18px;
-  height: 18px;
+  width: 100px;
+  height: 100px;
   object-fit: contain;
 }
 

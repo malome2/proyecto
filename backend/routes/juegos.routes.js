@@ -3,11 +3,25 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const db = require('../config/db');
+const cloudinary = require('../config/cloudinary');
 const { verifyAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 
-// --- Multer config ---
+// --- Límites de tamaño por tipo de archivo ---
+const MAX_SIZES = {
+    imagen: 5  * 1024 * 1024,  // 5 MB
+    musica: 20 * 1024 * 1024,  // 20 MB
+    video:  200 * 1024 * 1024, // 200 MB
+};
+
+const ALLOWED_MIME = {
+    imagen: 'image/',
+    musica: 'audio/',
+    video:  'video/',
+};
+
+// --- Multer — guarda todo en disco temporalmente ---
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const dir = 'uploads/';
@@ -20,18 +34,63 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ storage });
+const upload = multer({
+    storage,
+    limits: { fileSize: 200 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        const allowed = ALLOWED_MIME[file.fieldname];
+        if (!allowed || !file.mimetype.startsWith(allowed)) {
+            return cb(new Error(`Tipo de archivo no permitido para "${file.fieldname}"`));
+        }
+        cb(null, true);
+    }
+});
 
 const uploadFields = upload.fields([
     { name: 'imagen', maxCount: 1 },
     { name: 'musica', maxCount: 1 },
-    { name: 'video', maxCount: 1 }
+    { name: 'video',  maxCount: 1 }
 ]);
 
-// Elimina un archivo local del disco (ignora URLs externas)
-function deleteFile(filePath) {
+function runUpload(req, res) {
+    return new Promise((resolve, reject) => {
+        uploadFields(req, res, err => err ? reject(err) : resolve());
+    });
+}
+
+function checkFileSizes(files) {
+    for (const [field, max] of Object.entries(MAX_SIZES)) {
+        const file = files?.[field]?.[0];
+        if (file && file.size > max) {
+            deleteLocalFile(file.path);
+            return `El archivo de ${field} supera el tamaño máximo (${max / 1024 / 1024} MB)`;
+        }
+    }
+    return null;
+}
+
+// --- Helpers de archivos ---
+
+// Borra un archivo local (ignora URLs externas)
+function deleteLocalFile(filePath) {
     if (!filePath || filePath.startsWith('http')) return;
-    try { fs.unlinkSync(filePath); } catch { /* ya no existe, ignorar */ }
+    try { fs.unlinkSync(filePath); } catch { /* ya no existe */ }
+}
+
+// Sube una imagen al disco temporal a Cloudinary y borra el archivo local
+async function uploadToCloudinary(localPath) {
+    const result = await cloudinary.uploader.upload(localPath, {
+        folder: 'museo-videojuegos'
+    });
+    deleteLocalFile(localPath);
+    return result.secure_url;
+}
+
+// Borra una imagen de Cloudinary a partir de su URL
+async function deleteCloudinaryImage(url) {
+    if (!url?.startsWith('https://res.cloudinary.com')) return;
+    const match = url.match(/\/upload\/(?:v\d+\/)?(.+)\.[^.]+$/);
+    if (match) await cloudinary.uploader.destroy(match[1]).catch(() => {});
 }
 
 // ---------------------------------------------------------------------------
@@ -63,21 +122,33 @@ router.get('/:id', async (req, res) => {
 
 // ---------------------------------------------------------------------------
 // POST /api/juegos — crear juego (solo ADMIN)
-// Body (multipart/form-data):
-//   titulo* (texto), descripcion, pos_x, pos_y,
-//   video_url (texto, URL externa) o video (archivo)
-//   imagen (archivo), musica (archivo)
 // ---------------------------------------------------------------------------
-router.post('/', verifyAdmin, uploadFields, async (req, res) => {
-    const { titulo, descripcion, pos_x, pos_y, video_url } = req.body;
+router.post('/', verifyAdmin, async (req, res) => {
+    try {
+        await runUpload(req, res);
+    } catch (err) {
+        Object.values(req.files || {}).flat().forEach(f => deleteLocalFile(f.path));
+        const msg = err.code === 'LIMIT_FILE_SIZE'
+            ? 'Archivo demasiado grande (máximo 200 MB)'
+            : (err.message || 'Error al subir el archivo');
+        return res.status(400).json({ error: msg });
+    }
 
+    const sizeError = checkFileSizes(req.files);
+    if (sizeError) return res.status(400).json({ error: sizeError });
+
+    const { titulo, descripcion, pos_x, pos_y, video_url } = req.body;
     if (!titulo) return res.status(400).json({ error: 'El título es obligatorio' });
 
-    const imagen     = req.files?.imagen?.[0]?.path.replace(/\\/g, '/') || null;
-    const musica_url = req.files?.musica?.[0]?.path.replace(/\\/g, '/') || null;
-    const video      = req.files?.video?.[0]?.path.replace(/\\/g, '/')  || video_url || null;
-
     try {
+        // Imagen → Cloudinary; música y vídeo → disco local
+        let imagen = null;
+        if (req.files?.imagen?.[0]) {
+            imagen = await uploadToCloudinary(req.files.imagen[0].path);
+        }
+        const musica_url = req.files?.musica?.[0]?.path.replace(/\\/g, '/') || null;
+        const video      = req.files?.video?.[0]?.path.replace(/\\/g, '/')  || video_url || null;
+
         const [result] = await db.query(
             `INSERT INTO juegos (titulo, descripcion, imagen, video_url, musica_url, pos_x, pos_y, created_by)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -93,11 +164,22 @@ router.post('/', verifyAdmin, uploadFields, async (req, res) => {
 
 // ---------------------------------------------------------------------------
 // PUT /api/juegos/:id — editar juego (solo ADMIN)
-// Solo se actualizan los campos que lleguen en la petición.
-// Si se sube un archivo nuevo, el anterior se borra del disco.
 // ---------------------------------------------------------------------------
-router.put('/:id', verifyAdmin, uploadFields, async (req, res) => {
+router.put('/:id', verifyAdmin, async (req, res) => {
     const { id } = req.params;
+
+    try {
+        await runUpload(req, res);
+    } catch (err) {
+        Object.values(req.files || {}).flat().forEach(f => deleteLocalFile(f.path));
+        const msg = err.code === 'LIMIT_FILE_SIZE'
+            ? 'Archivo demasiado grande (máximo 200 MB)'
+            : (err.message || 'Error al subir el archivo');
+        return res.status(400).json({ error: msg });
+    }
+
+    const sizeError = checkFileSizes(req.files);
+    if (sizeError) return res.status(400).json({ error: sizeError });
 
     try {
         const [rows] = await db.query('SELECT * FROM juegos WHERE id = ?', [id]);
@@ -106,25 +188,23 @@ router.put('/:id', verifyAdmin, uploadFields, async (req, res) => {
         const juego = rows[0];
         const { titulo, descripcion, pos_x, pos_y, video_url } = req.body;
 
-        // Archivos: si llega uno nuevo, usar ese y borrar el anterior
         let imagen     = juego.imagen;
         let musica_url = juego.musica_url;
         let video      = juego.video_url;
 
         if (req.files?.imagen) {
-            deleteFile(juego.imagen);
-            imagen = req.files.imagen[0].path.replace(/\\/g, '/');
+            await deleteCloudinaryImage(juego.imagen); // borra la antigua de Cloudinary
+            imagen = await uploadToCloudinary(req.files.imagen[0].path);
         }
         if (req.files?.musica) {
-            deleteFile(juego.musica_url);
+            deleteLocalFile(juego.musica_url);
             musica_url = req.files.musica[0].path.replace(/\\/g, '/');
         }
         if (req.files?.video) {
-            deleteFile(juego.video_url);
+            deleteLocalFile(juego.video_url);
             video = req.files.video[0].path.replace(/\\/g, '/');
         } else if (video_url !== undefined) {
-            // Admin cambió la URL externa sin subir archivo
-            deleteFile(juego.video_url);
+            deleteLocalFile(juego.video_url);
             video = video_url;
         }
 
@@ -133,13 +213,13 @@ router.put('/:id', verifyAdmin, uploadFields, async (req, res) => {
              SET titulo=?, descripcion=?, imagen=?, video_url=?, musica_url=?, pos_x=?, pos_y=?
              WHERE id=?`,
             [
-                titulo       ?? juego.titulo,
-                descripcion  ?? juego.descripcion,
+                titulo      ?? juego.titulo,
+                descripcion ?? juego.descripcion,
                 imagen,
                 video,
                 musica_url,
-                pos_x        ?? juego.pos_x,
-                pos_y        ?? juego.pos_y,
+                pos_x       ?? juego.pos_x,
+                pos_y       ?? juego.pos_y,
                 id
             ]
         );
@@ -153,7 +233,6 @@ router.put('/:id', verifyAdmin, uploadFields, async (req, res) => {
 
 // ---------------------------------------------------------------------------
 // DELETE /api/juegos/:id — eliminar juego (solo ADMIN)
-// Borra también los archivos locales asociados.
 // ---------------------------------------------------------------------------
 router.delete('/:id', verifyAdmin, async (req, res) => {
     try {
@@ -161,9 +240,9 @@ router.delete('/:id', verifyAdmin, async (req, res) => {
         if (rows.length === 0) return res.status(404).json({ error: 'Juego no encontrado' });
 
         const juego = rows[0];
-        deleteFile(juego.imagen);
-        deleteFile(juego.musica_url);
-        deleteFile(juego.video_url);
+        await deleteCloudinaryImage(juego.imagen); // borra de Cloudinary
+        deleteLocalFile(juego.musica_url);
+        deleteLocalFile(juego.video_url);
 
         await db.query('DELETE FROM juegos WHERE id = ?', [req.params.id]);
         res.json({ message: 'Juego eliminado correctamente' });

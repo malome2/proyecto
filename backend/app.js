@@ -6,6 +6,7 @@ const authRoutes = require('./routes/auth.routes');
 const juegosRoutes = require('./routes/juegos.routes');
 const recomendacionesRoutes = require('./routes/recomendaciones.routes');
 const usuariosRoutes = require('./routes/usuarios.routes');
+const { globalLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.use(globalLimiter);
 app.use('/uploads', express.static('uploads'));
 
 app.use('/api/auth', authRoutes);

@@ -3,6 +3,16 @@
  * Call renderNav('pageName') after including this script.
  * Pages: 'index' | 'museo' | 'us' | 'support' | 'admin'
  */
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function renderNav(activePage) {
   const user  = JSON.parse(localStorage.getItem('user') || 'null');
   const token = localStorage.getItem('token');
@@ -11,7 +21,7 @@ function renderNav(activePage) {
     { id: 'index',   href: 'index.html',   label: 'Inicio'        },
     { id: 'museo',   href: 'museo.html',   label: 'Museo'         },
     { id: 'us',      href: 'us.html',      label: 'Quiénes somos' },
-    { id: 'support', href: 'support.html', label: 'Support'       },
+    { id: 'support', href: 'support.html', label: 'Apóyanos'      },
   ];
 
   const linksHtml = links.map(l =>
@@ -22,10 +32,10 @@ function renderNav(activePage) {
   if (token && user) {
     const dashHref = user.role === 'ADMIN' ? 'admin.html' : 'museo.html';
     actionsHtml = `
-      <div class="nav-user">
+      <a href="perfil.html" class="nav-user">
         <span class="nav-user-dot"></span>
-        <span>${user.username}</span>
-      </div>
+        <span>${escapeHtml(user.username)}</span>
+      </a>
       ${user.role === 'ADMIN' ? `<a href="${dashHref}" class="btn-nav">Panel admin</a>` : ''}
       <button class="btn-nav" onclick="logout()">Salir</button>
     `;
@@ -37,7 +47,7 @@ function renderNav(activePage) {
     <nav class="nav">
       <a href="index.html" class="nav-brand">
         <div class="nav-brand-icon"><img src="img/logo.svg" alt="Logo" /></div>
-        <div class="nav-brand-text">MUSEO<span>VG</span></div>
+        <div class="nav-brand-text">Virtual <span>Videogame Museum</span></div>
       </a>
       <div class="nav-links">${linksHtml}</div>
       <div class="nav-actions">${actionsHtml}</div>

@@ -50,7 +50,8 @@ Desarrollar una aplicación web que funcione como un museo virtual de videojuego
 ### Herramientas adicionales
 - **Git / GitHub** para el control de versiones.
 - **dotenv** para la gestión de variables de entorno.
-- Plataformas de hosting para el despliegue (por definir).
+- **express-rate-limit** para la protección contra abuso de la API.
+- **Cloudinary** para el almacenamiento de imágenes en la nube con CDN.
 
 ---
 
@@ -144,12 +145,30 @@ final/
 │   └── package.json
 ├── frontend/
 │   ├── login.html              # Página de login y registro
-│   ├── index.html              # Página principal (pendiente)
-│   ├── museo.html              # Museo virtual Canvas (pendiente)
-│   ├── admin.html              # Panel de administración (pendiente)
-│   ├── CSS/                    # Hojas de estilo (pendiente)
-│   ├── JS/                     # Scripts de cliente (pendiente)
-│   └── assets/                 # Recursos estáticos
+│   ├── index.html              # Página principal
+│   ├── museo.html              # Museo virtual 2.5D
+│   ├── admin.html              # Panel de administración
+│   ├── support.html            # Página de donaciones
+│   ├── us.html                 # Página "Quiénes somos"
+│   ├── CSS/
+│   │   ├── base.css            # Reset y variables globales
+│   │   ├── nav.css             # Barra de navegación
+│   │   ├── index.css           # Estilos página principal
+│   │   ├── login.css           # Estilos login/registro
+│   │   ├── museo.css           # Estilos del museo y canvas
+│   │   ├── support.css         # Estilos página donaciones
+│   │   ├── ui.css              # Componentes reutilizables
+│   │   └── us.css              # Estilos "Quiénes somos"
+│   ├── JS/
+│   │   ├── config.js           # API_BASE (autodetecta localhost vs producción)
+│   │   ├── nav.js              # renderNav(), logout()
+│   │   ├── login.js            # Lógica login y registro
+│   │   ├── index.js            # Lógica página principal
+│   │   ├── museo.js            # Motor raycaster 2.5D completo
+│   │   └── support.js          # Lógica página donaciones
+│   └── img/
+│       ├── logo.svg
+│       └── icon.svg
 └── docs/
     ├── memoria.md              # Este documento
     ├── prompt.txt              # Contexto del proyecto
@@ -193,8 +212,6 @@ JWT_SECRET=<clave_secreta_jwt>
 
 ---
 
-### API REST — Endpoints implementados (juegos)
-
 #### Juegos (`/api/juegos`)
 
 | Método | Ruta | Acceso | Descripción |
@@ -233,8 +250,6 @@ JWT_SECRET=<clave_secreta_jwt>
 
 ---
 
-### API REST — Endpoints implementados (recomendaciones y usuarios)
-
 #### Recomendaciones (`/api/recomendaciones`)
 
 | Método | Ruta | Acceso | Descripción |
@@ -256,13 +271,11 @@ JWT_SECRET=<clave_secreta_jwt>
 - Errores: 401, 403, 500.
 
 **PUT /api/recomendaciones/:id/aprobar**
-- Header: `Authorization: Bearer <token>` (solo ADMIN).
 - Cambia `estado` de `'pendiente'` a `'aprobado'`.
 - Respuesta 200: `{ message: "Recomendación aprobada" }`.
 - Errores: 404, 401, 403, 500.
 
 **DELETE /api/recomendaciones/:id**
-- Header: `Authorization: Bearer <token>` (solo ADMIN).
 - Elimina la recomendación de la BD.
 - Respuesta 200: `{ message: "Recomendación eliminada" }`.
 - Errores: 404, 401, 403, 500.
@@ -274,7 +287,6 @@ JWT_SECRET=<clave_secreta_jwt>
 | GET | `/api/usuarios` | ADMIN | Listar todos los usuarios |
 
 **GET /api/usuarios**
-- Header: `Authorization: Bearer <token>` (solo ADMIN).
 - Devuelve `id, username, email, role` de todos los usuarios (sin `password`), ordenados por id.
 - Respuesta 200: array de usuarios.
 - Errores: 401, 403, 500.
@@ -283,11 +295,150 @@ JWT_SECRET=<clave_secreta_jwt>
 
 ### Frontend — Páginas implementadas
 
+#### Módulos compartidos
+
+**`JS/config.js`**
+Define `API_BASE` detectando automáticamente si el entorno es local (`http://localhost:3000`) o producción. Así el frontend funciona sin cambios en ambos entornos.
+
+**`JS/nav.js`**
+Inyecta la barra de navegación en todas las páginas mediante `renderNav(pageName)`. Muestra el enlace "Panel admin" únicamente si el rol guardado en `localStorage` es `ADMIN`. La función `logout()` limpia el `localStorage` y redirige a `login.html`.
+
+---
+
 #### `login.html`
 Página de acceso a la aplicación. Incluye:
 - Tab **Iniciar sesión**: formulario con email y contraseña. Llama a `POST /api/auth/login`, guarda el token y datos del usuario en `localStorage` y redirige según el rol (`museo.html` para USER, `admin.html` para ADMIN).
 - Tab **Registrarse**: formulario con username, email y contraseña. Llama a `POST /api/auth/register` y redirige automáticamente al tab de login.
 - Si el usuario ya tiene sesión activa al entrar, redirige directamente.
+
+#### `index.html`
+Página principal pública. Incluye:
+- Contador dinámico de juegos en el museo (llama a `GET /api/juegos`).
+- Formulario de recomendación de videojuego para usuarios autenticados. Llama a `POST /api/recomendaciones`. Si el usuario no está autenticado, redirige al login.
+
+#### `admin.html`
+Panel de administración protegido (solo `ADMIN`). Permite:
+- Listar, crear, editar y eliminar juegos del museo con subida de archivos (imagen, música, vídeo).
+- Ver y gestionar recomendaciones pendientes (aprobar o rechazar).
+- Ver la lista de usuarios registrados.
+
+#### `support.html`
+Página de donaciones con información sobre el proyecto y botones de donación. La pasarela de pago no está implementada.
+
+#### `us.html`
+Página estática "Quiénes somos" con información del equipo y descripción del proyecto.
+
+---
+
+### Motor del museo — `museo.js`
+
+El museo virtual está implementado íntegramente en JavaScript usando la **Canvas API** sin ninguna librería externa.
+
+#### Algoritmo raycasting (DDA)
+
+Se implementa el algoritmo **Digital Differential Analyzer (DDA)**, la misma técnica que usa Wolfenstein 3D y Doom. Por cada columna de píxeles del canvas se lanza un rayo desde la posición del jugador. El algoritmo calcula con qué celda del mapa colisiona y a qué distancia perpendicular, obteniendo la altura de pared que debe dibujar en esa columna. La distancia perpendicular (en lugar de euclidiana) evita el efecto ojo de pez.
+
+#### Generación procedural del mapa
+
+El laberinto se genera mediante un **algoritmo de retroceso recursivo** (recursive backtracker). Con paso de cuadrícula 3, produce salas de 2×2 celdas y pasillos de 2 celdas de ancho. El tamaño del mapa crece automáticamente según el número de juegos cargados desde la API.
+
+#### Sistema de cuadros
+
+Tras generar el mapa se detectan todas las caras de muro con celda transitable adyacente. Los juegos con imagen se asignan a estas caras. Un LUT indexado por `(celda_x, celda_y, side, step)` permite identificar en O(1) si la columna renderizada pertenece a un cuadro. La coordenada horizontal se corrige según la dirección del rayo para evitar espejo horizontal.
+
+#### Marco de cuadro
+
+Los cuadros se renderizan con un marco biselado en múltiples bandas de color: lado izquierdo iluminado (nogal cálido con destello dorado), lado derecho en sombra, moldurón superior con arista dorada, moldurón inferior oscuro y sombra proyectada de 5px bajo el cuadro.
+
+#### Sistema de audio
+
+Al acercarse a un cuadro con música asociada, el audio sube progresivamente de volumen (fade in). Al alejarse, baja hasta silenciarse (fade out). Solo suena un track simultáneamente.
+
+#### Sistema de diálogo
+
+Al entrar en el radio de proximidad aparece un panel con el título y la descripción con efecto **typewriter**. El botón **[R] Leer más** abre un overlay con el texto completo. El botón **[E]** abre el vídeo del juego en una pestaña nueva.
+
+#### Colisión y movimiento
+
+La colisión usa un **AABB** con margen de 0.22 unidades verificando las 4 esquinas del jugador, permitiendo deslizamiento suave a lo largo de paredes.
+
+| Tecla | Acción |
+|---|---|
+| `W` / `↑` | Avanzar |
+| `S` / `↓` | Retroceder |
+| `A` | Strafe izquierda |
+| `D` | Strafe derecha |
+| `←` / `→` | Girar |
+| `R` | Abrir/cerrar texto completo |
+| `E` | Ver vídeo del juego |
+
+#### Texturas procedurales
+
+Las texturas de ladrillo se generan en tiempo de ejecución con una paleta de grises cálidos y juntas de mortero. Se generan dos versiones (clara y oscura) para simular iluminación lateral.
+
+---
+
+---
+
+## Seguridad
+
+### Autenticación y autorización
+- Las contraseñas se almacenan cifradas con **bcrypt** (factor de coste 10). Nunca se guarda la contraseña en claro.
+- El inicio de sesión devuelve un **JWT** firmado con `JWT_SECRET` y con expiración de 8 horas. El token se guarda en `localStorage` del navegador.
+- Todas las rutas protegidas verifican el JWT mediante los middlewares `verifyToken` y `verifyAdmin` antes de ejecutar ninguna lógica.
+
+### Política de contraseñas
+Las contraseñas deben cumplir los siguientes requisitos, validados tanto en el frontend (feedback inmediato) como en el backend (fuente de verdad):
+- Mínimo 8 caracteres.
+- Al menos una letra mayúscula.
+- Al menos una letra minúscula.
+- Al menos un número.
+
+Regex utilizado en backend: `/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/`
+
+### Almacenamiento de imágenes en la nube (Cloudinary)
+Las imágenes de los juegos se almacenan en **Cloudinary** en lugar del disco del servidor. El flujo es:
+
+1. Multer recibe el archivo y lo guarda temporalmente en `uploads/`.
+2. El servidor sube la imagen a Cloudinary (carpeta `museo-videojuegos`) y obtiene una URL pública con CDN.
+3. El archivo temporal se elimina del disco inmediatamente.
+4. La URL de Cloudinary (`https://res.cloudinary.com/...`) se guarda en la columna `imagen` de la base de datos.
+
+Al eliminar o reemplazar un juego, la imagen se borra también de Cloudinary mediante su API. La música y el vídeo siguen almacenándose en `uploads/` del servidor.
+
+Variables de entorno necesarias:
+```
+CLOUDINARY_CLOUD_NAME=...
+CLOUDINARY_API_KEY=...
+CLOUDINARY_API_SECRET=...
+```
+
+### Límites de subida de archivos
+Los archivos multimedia subidos al museo pasan por dos validaciones en el servidor:
+
+1. **Tipo MIME**: se comprueba que el campo `imagen` reciba una imagen, `musica` un audio y `video` un vídeo. Cualquier otro tipo es rechazado con error 400 antes de guardarse en disco.
+2. **Tamaño máximo por tipo**:
+
+| Campo | Límite |
+|---|---|
+| `imagen` | 5 MB |
+| `musica` | 20 MB |
+| `video` | 200 MB |
+
+Si un archivo supera el límite se borra automáticamente del disco y se devuelve un error descriptivo al cliente. Esto evita que un administrador (o alguien que haya conseguido un token) pueda llenar el almacenamiento del servidor.
+
+### Rate limiting (protección contra abuso)
+Se aplican tres niveles de límite de peticiones por IP mediante `express-rate-limit`:
+
+| Limiter | Límite | Ventana | Rutas afectadas |
+|---|---|---|---|
+| `authLimiter` | 10 peticiones | 15 minutos | `POST /api/auth/login`, `POST /api/auth/register` |
+| `writeLimiter` | 30 peticiones | 15 minutos | `POST /api/recomendaciones` |
+| `globalLimiter` | 200 peticiones | 15 minutos | Toda la API (aplicado en `app.js`) |
+
+El `authLimiter` protege contra fuerza bruta en el login (probar contraseñas masivamente). El `writeLimiter` evita el spam de recomendaciones. El `globalLimiter` es la red de seguridad general contra ataques de denegación de servicio.
+
+Las cabeceras estándar `RateLimit-*` se incluyen en las respuestas para que los clientes sepan cuántas peticiones les quedan.
 
 ---
 

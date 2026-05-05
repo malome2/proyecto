@@ -40,8 +40,12 @@
 }
 
 .tier-icon {
-  width: 32px;
-  height: 32px;
+  width: 150px;
+  height: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
 }
 
 .tier-icon img {
@@ -51,11 +55,12 @@
 }
 
 .tier-name {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--text-secondary);
+  color: #ffffff;
+  text-align: center;
 }
 
 .tier-price {

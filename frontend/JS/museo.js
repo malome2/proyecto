@@ -3,18 +3,29 @@
 
 renderNav('museo');
 
+// Detecta dispositivo táctil o pantalla pequeña → muestra aviso y para
+const isMobile = window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 768;
+if (isMobile) {
+  document.getElementById('mobile-notice').style.display = 'flex';
+  document.querySelector('.museo-layout').style.display  = 'none';
+  throw new Error('mobile'); // detiene la ejecución del resto del script
+}
+
 // ── Constantes ────────────────────────────────────────────────────────────────
 const MOVE_SPD   = 0.026;   // velocidad avance/retroceso
 const STRAFE_SPD = 0.022;   // strafe lateral
 const ROT_SPD    = 0.020;   // velocidad giro
 const PLANE_LEN  = 0.66;    // plano cámara → FOV ~66°
-const COL_MARGIN = 0.22;    // margen de colisión
+const COL_MARGIN = 0.22;    // margen de colisión (AABB del jugador)
+const MIN_PERP   = 0.40;    // distancia mínima de render → evita distorsión al acercarse
 const NEAR_DIST  = 1.5;     // distancia para activar diálogo / música
 const INTERACT_D = 1.5;     // distancia máxima para E
 const PAINT_U0   = 0.06;    // cuadro: margen horizontal en la pared [0-1]
 const PAINT_U1   = 0.94;
 const PAINT_V0   = 0.04;    // cuadro: margen vertical [0-1]
 const PAINT_V1   = 0.94;
+const FRAME_HW   = 0.10;    // anchura del marco lateral (fracción de la cara de muro, cada lado)
+const FRAME_VF   = 0.09;    // altura del marco superior/inferior (fracción de wallH)
 const BOB_SPD    = 0.09;    // velocidad balanceo
 const BOB_AMP    = 0;       // sin balanceo (evita distorsión visual al caminar)
 const TEX_W      = 64;      // tamaño textura ladrillo
@@ -39,6 +50,7 @@ let paintings=[], paintingLUT={};
 let nearPainting=null;
 let audio=null, audioSrc='';
 let dialogIdx=0;
+let expandedDialog=false;
 let keys={}, eConsumed=false;
 let texLight=null, texDark=null;  // texturas ladrillo
 
@@ -79,27 +91,38 @@ function makeBrickTex(shadeFactor) {
 
 // ── Generación del mapa basada en el nº de juegos ────────────────────────────
 function buildMap(nGames) {
-  // Grid lo justo: al menos 3×3 espacios para 2 juegos, crece con más
   const gSize = Math.max(2, Math.ceil(Math.sqrt(Math.max(nGames, 1) * 2.5)));
   const GW=gSize, GH=gSize;
-  MAP_W=GW*2+1; MAP_H=GH*2+1;
+  // S=3: salas 2×2 + 1 celda de muro entre ellas → pasillos de 2 celdas de ancho
+  const S=3;
+  MAP_W=GW*S+1; MAP_H=GH*S+1;
   MAP=Array.from({length:MAP_H},()=>Array(MAP_W).fill(1));
+
+  function clearRoom(gx,gy) {
+    const mc=gx*S+1, mr=gy*S+1;
+    MAP[mr][mc]=0; MAP[mr][mc+1]=0;
+    MAP[mr+1][mc]=0; MAP[mr+1][mc+1]=0;
+  }
 
   function carve(gx,gy) {
     [[0,-1],[1,0],[0,1],[-1,0]].sort(()=>Math.random()-.5).forEach(([dx,dy])=>{
       const nx=gx+dx, ny=gy+dy;
       if (nx<0||nx>=GW||ny<0||ny>=GH) return;
-      const mx=nx*2+1, my=ny*2+1;
-      if (MAP[my][mx]!==1) return;
-      MAP[gy*2+1+dy][gx*2+1+dx]=0;
-      MAP[my][mx]=0;
+      if (MAP[ny*S+1][nx*S+1]===0) return;  // ya visitado
+      // Pasillos de 2 celdas de ancho entre salas
+      if      (dx=== 1) { MAP[gy*S+1][gx*S+3]=0; MAP[gy*S+2][gx*S+3]=0; }
+      else if (dx===-1) { MAP[gy*S+1][nx*S+3]=0; MAP[gy*S+2][nx*S+3]=0; }
+      else if (dy=== 1) { MAP[gy*S+3][gx*S+1]=0; MAP[gy*S+3][gx*S+2]=0; }
+      else              { MAP[ny*S+3][gx*S+1]=0; MAP[ny*S+3][gx*S+2]=0; }
+      clearRoom(nx,ny);
       carve(nx,ny);
     });
   }
-  MAP[1][1]=0;
+
+  clearRoom(0,0);
   carve(0,0);
 
-  player.x=1.5; player.y=1.5;
+  player.x=2; player.y=2;
   player.dirX=1; player.dirY=0;
   player.planeX=0; player.planeY=PLANE_LEN;
 }
@@ -140,7 +163,7 @@ function placePaintings(games) {
     const p={game,...f,img,imgReady:false};
     img.onload=()=>{ p.imgReady=true; };
     img.onerror=()=>{ p.imgReady=false; };
-    img.src=`${API_BASE}/${game.imagen}`;
+    img.src=game.imagen.startsWith('http')?game.imagen:`${API_BASE}/${game.imagen}`;
     paintings.push(p);
     usedFaces.push(f);
   }
@@ -224,7 +247,7 @@ function render() {
       if(MAP[my][mx]===1) break;
     }
 
-    const perp=Math.max(0.001,side===0
+    const perp=Math.max(MIN_PERP,side===0
       ?(mx-player.x+(1-sx)*.5)/rdx
       :(my-player.y+(1-sy)*.5)/rdy);
 
@@ -246,16 +269,49 @@ function render() {
     // ¿Hay cuadro en esta cara del muro?
     const step=side===0?sx:sy;
     const p=paintingLUT[`${mx},${my},${side},${step}`];
-    if (p&&wallX>=PAINT_U0&&wallX<=PAINT_U1)
-      hits[x]={p,wallX,y0,y1,wallH:wh,wallTop:horizon-(wh>>1)};
+    if (p&&wallX>=PAINT_U0&&wallX<=PAINT_U1) {
+      // Corrección de espejo: depende de la dirección del rayo y la cara golpeada
+      const mirror=(side===0&&rdx<0)||(side===1&&rdy>0);
+      hits[x]={p,wallX,mirror,y0,y1,wallH:wh,wallTop:horizon-(wh>>1)};
+    }
   }
 
-  // ── Paso 2: imagen del cuadro ─────────────────────────────────────────────
+  // ── Paso 2: imagen del cuadro (insetada dentro del marco) ────────────────
   for (let x=0;x<W;x++) {
     const h=hits[x];
     if (!h) continue;
     const {p,wallX,wallH,wallTop}=h;
-    // Usar altura real de pared (sin recortar) para que el cuadro escale correctamente al acercarse
+    const inU0=PAINT_U0+FRAME_HW, inU1=PAINT_U1-FRAME_HW;
+    if (wallX<inU0||wallX>inU1) continue;  // columna de marco lateral → sin imagen
+
+    const py0u=(wallTop+PAINT_V0*wallH)|0;
+    const py1u=(wallTop+PAINT_V1*wallH)|0;
+    const fH=Math.max(8,Math.min(40,(wallH*FRAME_VF)|0));
+    const iPy0u=py0u+fH, iPy1u=py1u-fH;
+    const iPy0=Math.max(0,iPy0u), iPy1=Math.min(H,iPy1u);
+    const iph=iPy1-iPy0;
+    if(iph<=0) continue;
+
+    if (p.imgReady) {
+      const {mirror}=h;
+      const raw=(wallX-inU0)/(inU1-inU0);
+      const u=mirror?1-raw:raw;
+      const imgX=Math.min((u*p.img.naturalWidth)|0,p.img.naturalWidth-1);
+      const totalH=iPy1u-iPy0u;
+      const srcY=totalH>0?Math.max(0,((iPy0-iPy0u)/totalH*p.img.naturalHeight)|0):0;
+      const srcH=totalH>0?Math.max(1,(iph/totalH*p.img.naturalHeight)|0):1;
+      ctx.drawImage(p.img,imgX,srcY,1,srcH,x,iPy0,1,iph);
+    } else {
+      ctx.fillStyle='rgba(195,180,152,0.55)';
+      ctx.fillRect(x,iPy0,1,iph);
+    }
+  }
+
+  // ── Paso 3: marco con bisel ───────────────────────────────────────────────
+  for (let x=0;x<W;x++) {
+    const h=hits[x];
+    if (!h) continue;
+    const {wallX,wallH,wallTop}=h;
     const py0u=(wallTop+PAINT_V0*wallH)|0;
     const py1u=(wallTop+PAINT_V1*wallH)|0;
     const py0=Math.max(0,py0u);
@@ -263,46 +319,65 @@ function render() {
     const ph=py1-py0;
     if(ph<=0) continue;
 
-    if (p.imgReady) {
-      const u=(wallX-PAINT_U0)/(PAINT_U1-PAINT_U0);
-      const imgX=Math.min((u*p.img.naturalWidth)|0,p.img.naturalWidth-1);
-      const totalH=py1u-py0u;
-      // Recortar la muestra de imagen vertical si el cuadro sale del canvas por arriba/abajo
-      const srcY=Math.max(0,((py0-py0u)/totalH*p.img.naturalHeight)|0);
-      const srcH=Math.max(1,(ph/totalH*p.img.naturalHeight)|0);
-      ctx.drawImage(p.img,imgX,srcY,1,srcH,x,py0,1,ph);
-    } else {
-      ctx.fillStyle='rgba(195,180,152,0.55)';
-      ctx.fillRect(x,py0,1,ph);
+    const fH=Math.max(8,Math.min(40,(wallH*FRAME_VF)|0));
+    const inU0=PAINT_U0+FRAME_HW, inU1=PAINT_U1-FRAME_HW;
+
+    // ── Marco lateral ─────────────────────────────────────────────────────
+    if (wallX<inU0||wallX>inU1) {
+      const isL=wallX<inU0;
+      const t=Math.max(0,Math.min(1,isL
+        ?(wallX-PAINT_U0)/FRAME_HW
+        :(PAINT_U1-wallX)/FRAME_HW));
+      // t=0 borde exterior, t=1 borde interior
+      // Lado izquierdo: iluminado; lado derecho: en sombra
+      let col;
+      if      (t<0.10) col=isL?'#c8911a':'#1a0b02';  // borde ext: dorado lit / oscuro sombra
+      else if (t<0.85) col=isL?'#8a5215':'#4a2809';  // cuerpo: nogal lit / oscuro
+      else             col='#0d0602';                  // borde interior: oscuro
+      ctx.fillStyle=col; ctx.fillRect(x,py0,1,ph);
+      continue;
+    }
+
+    // ── Marco superior ────────────────────────────────────────────────────
+    if (py0u>=0&&py0u<H) {
+      let fy=py0u;
+      const b=(col,h)=>{
+        if(h<=0)return; const a=Math.max(0,fy),z=Math.min(H,fy+h);
+        if(z>a){ctx.fillStyle=col;ctx.fillRect(x,a,1,z-a);} fy+=h;
+      };
+      b('#0d0602',1);       // borde exterior oscuro
+      b('#c8911a',2);       // destello dorado (cara superior iluminada)
+      b('#7c471a',fH-5);    // cuerpo del marco (nogal cálido)
+      b('#2a1204',2);       // sombra interior
+    }
+
+    // ── Marco inferior ────────────────────────────────────────────────────
+    if (py1u>0&&py1u<=H) {
+      let fy=py1u-fH;
+      const b=(col,h)=>{
+        if(h<=0)return; const a=Math.max(0,fy),z=Math.min(H,fy+h);
+        if(z>a){ctx.fillStyle=col;ctx.fillRect(x,a,1,z-a);} fy+=h;
+      };
+      b('#2a1204',2);       // sombra interior
+      b('#5a2d0b',fH-3);    // cuerpo (cara inferior, más oscura)
+      b('#0d0602',1);       // borde exterior oscuro
+    }
+
+    // ── Sombra proyectada debajo del cuadro ───────────────────────────────
+    if (py1u>0&&py1u<H) {
+      for(let i=0;i<5;i++){
+        const sy=py1u+i; if(sy>=H) break;
+        ctx.fillStyle=`rgba(0,0,0,${(0.40-i*0.08).toFixed(2)})`;
+        ctx.fillRect(x,sy,1,1);
+      }
     }
   }
 
-  // ── Paso 3: marco del cuadro (borde oscuro) ───────────────────────────────
-  for (let x=0;x<W;x++) {
-    const h=hits[x];
-    if (!h) continue;
-    const {p,wallH,wallTop}=h;
-    const py0u=(wallTop+PAINT_V0*wallH)|0;
-    const py1u=(wallTop+PAINT_V1*wallH)|0;
-    const py0=Math.max(0,py0u);
-    const py1=Math.min(H,py1u);
-    const ph=py1-py0;
-    if(ph<=1) continue;
-    const thick=Math.min(Math.max(2,(wallH*0.035)|0),ph>>1);
-
-    ctx.fillStyle='rgba(18,10,4,0.97)';
-    ctx.fillRect(x,py0,1,thick);
-    ctx.fillRect(x,py1-thick,1,thick);
-
-    const pl=x>0?hits[x-1]:null;
-    if (!pl||pl.p!==p) ctx.fillRect(x,py0,1,ph);
-
-    const pr=x<W-1?hits[x+1]:null;
-    if (!pr||pr.p!==p) ctx.fillRect(x,py0,1,ph);
-  }
-
   // ── Diálogo ───────────────────────────────────────────────────────────────
-  if (nearPainting) renderDialog();
+  if (nearPainting) {
+    if (expandedDialog) renderExpandedDialog();
+    else renderDialog();
+  }
 
   // ── Mira ──────────────────────────────────────────────────────────────────
   ctx.strokeStyle='rgba(255,255,255,0.42)';
@@ -315,7 +390,7 @@ function render() {
 
 function renderDialog() {
   const game=nearPainting.game;
-  const pad=20, bh=122;
+  const pad=20, bh=130;
   const bw=Math.min(W-pad*2,640);
   const bx=(W-bw)/2, by=H-bh-pad;
 
@@ -323,28 +398,77 @@ function renderDialog() {
 
   // Título
   ctx.fillStyle='#b89fff';
-  ctx.font='bold 17px monospace';
-  ctx.fillText('▶  '+game.titulo, bx+16, by+26);
+  ctx.font='bold 20px monospace';
+  ctx.fillText('▶  '+game.titulo, bx+16, by+28);
 
   // Línea separadora
   ctx.fillStyle='rgba(100,72,200,0.25)';
-  ctx.fillRect(bx+16,by+34,bw-32,1);
+  ctx.fillRect(bx+16,by+37,bw-32,1);
 
-  // Descripción typewriter
+  // Descripción typewriter (3 líneas máximo)
   const desc=(game.descripcion||'').slice(0,dialogIdx|0);
   ctx.fillStyle='#cad0dc';
-  ctx.font='14px monospace';
-  wrapText(desc, bx+16, by+54, bw-32, 19, 3);
+  ctx.font='16px monospace';
+  wrapText(desc, bx+16, by+58, bw-32, 22, 3);
 
-  // Prompt E si hay vídeo y el jugador está suficientemente cerca
+  // Botón [R] Leer más — lado izquierdo del footer
+  if (game.descripcion) {
+    const rText='[R]  Leer más';
+    ctx.font='bold 15px monospace';
+    const rw=ctx.measureText(rText).width;
+    rrect(bx+16,by+bh-28,rw+16,20,4,'rgba(80,50,160,0.38)',null);
+    ctx.fillStyle='rgba(180,150,255,0.90)';
+    ctx.fillText(rText, bx+24, by+bh-12);
+  }
+
+  // Botón [E] Ver vídeo — lado derecho del footer
   if (game.video_url&&nearPainting.canInteract) {
     const eText='[E]  Ver vídeo →';
-    ctx.font='bold 13px monospace';
+    ctx.font='bold 15px monospace';
     const tw=ctx.measureText(eText).width;
-    rrect(bx+bw-tw-26,by+bh-26,tw+16,18,4,'rgba(80,50,160,0.38)',null);
+    rrect(bx+bw-tw-26,by+bh-28,tw+16,20,4,'rgba(80,50,160,0.38)',null);
     ctx.fillStyle='rgba(180,150,255,0.90)';
     ctx.fillText(eText, bx+bw-tw-18, by+bh-12);
   }
+}
+
+function renderExpandedDialog() {
+  const game=nearPainting.game;
+  const pad=30;
+  const bw=Math.min(W-pad*2,740);
+  const bh=Math.min(H-pad*2,480);
+  const bx=(W-bw)/2, by=(H-bh)/2;
+
+  // Fondo oscuro semitransparente sobre el juego
+  ctx.fillStyle='rgba(0,0,8,0.86)';
+  ctx.fillRect(0,0,W,H);
+
+  rrect(bx,by,bw,bh,12,'rgba(4,4,24,0.97)','rgba(100,72,200,0.55)');
+
+  // Título
+  ctx.fillStyle='#b89fff';
+  ctx.font='bold 20px monospace';
+  ctx.fillText('▶  '+game.titulo, bx+20, by+32);
+
+  // Separador
+  ctx.fillStyle='rgba(100,72,200,0.25)';
+  ctx.fillRect(bx+20,by+42,bw-40,1);
+
+  // Descripción completa
+  const lineH=20;
+  const contentH=bh-88;
+  const maxLines=Math.floor(contentH/lineH);
+  ctx.fillStyle='#cad0dc';
+  ctx.font='15px monospace';
+  wrapText(game.descripcion||'', bx+20, by+62, bw-40, lineH, maxLines);
+
+  // Botón [R] Cerrar — esquina inferior derecha
+  const closeText='[R]  Cerrar';
+  ctx.font='bold 15px monospace';
+  const tw=ctx.measureText(closeText).width;
+  rrect(bx+bw-tw-30,by+bh-28,tw+20,20,4,'rgba(80,50,160,0.38)',null);
+  ctx.fillStyle='rgba(180,150,255,0.90)';
+  ctx.fillText(closeText, bx+bw-tw-20, by+bh-12);
 }
 
 // ── Proximidad ────────────────────────────────────────────────────────────────
@@ -401,10 +525,19 @@ function updateHUD(np) {
 // ── Colisión / movimiento ─────────────────────────────────────────────────────
 function tryMove(nx,ny) {
   const m=COL_MARGIN;
-  const cy=Math.floor(player.y);
-  if (MAP[cy]?.[Math.floor(nx+m)]===0 && MAP[cy]?.[Math.floor(nx-m)]===0) player.x=nx;
-  const cx=Math.floor(player.x);
-  if (MAP[Math.floor(ny+m)]?.[cx]===0 && MAP[Math.floor(ny-m)]?.[cx]===0) player.y=ny;
+  // Verificar las 4 esquinas del AABB → evita muros invisibles en esquinas
+  const canX=
+    MAP[Math.floor(player.y-m)]?.[Math.floor(nx-m)]===0 &&
+    MAP[Math.floor(player.y+m)]?.[Math.floor(nx-m)]===0 &&
+    MAP[Math.floor(player.y-m)]?.[Math.floor(nx+m)]===0 &&
+    MAP[Math.floor(player.y+m)]?.[Math.floor(nx+m)]===0;
+  if (canX) player.x=nx;
+  const canY=
+    MAP[Math.floor(ny-m)]?.[Math.floor(player.x-m)]===0 &&
+    MAP[Math.floor(ny+m)]?.[Math.floor(player.x-m)]===0 &&
+    MAP[Math.floor(ny-m)]?.[Math.floor(player.x+m)]===0 &&
+    MAP[Math.floor(ny+m)]?.[Math.floor(player.x+m)]===0;
+  if (canY) player.y=ny;
 }
 
 function rotate(ang) {
@@ -447,6 +580,7 @@ function update() {
     if (dialogIdx<len) dialogIdx+=DIALOG_SPD;
   } else {
     dialogIdx=0;
+    expandedDialog=false;
   }
 
   updateAudio(nearPainting);
@@ -456,7 +590,10 @@ function update() {
 // ── Input ─────────────────────────────────────────────────────────────────────
 document.addEventListener('keydown',e=>{
   keys[e.code]=true;
-  if (e.code==='KeyE'&&!eConsumed&&nearPainting?.canInteract) {
+  if (e.code==='KeyR'&&nearPainting) {
+    expandedDialog=!expandedDialog;
+  }
+  if (e.code==='KeyE'&&!eConsumed&&nearPainting?.canInteract&&!expandedDialog) {
     eConsumed=true;
     const raw=nearPainting.game.video_url;
     if (raw) {

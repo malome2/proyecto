@@ -12,6 +12,16 @@ renderNav('admin');
 
 // ─── UTILS ────────────────────────────────────────────────────────────────────
 
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function authFetch(url, opts = {}) {
   return fetch(url, {
     ...opts,
@@ -82,10 +92,10 @@ function renderJuegos() {
   tbody.innerHTML = juegos.map(j => `
     <tr>
       <td>${j.imagen
-        ? `<img class="thumb" src="${mediaUrl(j.imagen)}" alt="${j.titulo}" />`
+        ? `<img class="thumb" src="${mediaUrl(j.imagen)}" alt="${escapeHtml(j.titulo)}" />`
         : '—'}</td>
-      <td class="td-main">${j.titulo}</td>
-<td>${j.video_url ? '<span style="color:var(--success-text)">✓</span>' : '—'}</td>
+      <td class="td-main">${escapeHtml(j.titulo)}</td>
+      <td>${j.video_url ? '<span style="color:var(--success-text)">✓</span>' : '—'}</td>
       <td>${j.musica_url ? '<span style="color:var(--success-text)">✓</span>' : '—'}</td>
       <td>
         <div class="actions">
@@ -206,9 +216,9 @@ function renderRecs() {
 
   tbody.innerHTML = data.map(r => `
     <tr>
-      <td class="td-main">${r.titulo}</td>
-      <td>${r.username}</td>
-      <td class="td-trunc">${r.descripcion || '—'}</td>
+      <td class="td-main">${escapeHtml(r.titulo)}</td>
+      <td>${escapeHtml(r.username)}</td>
+      <td class="td-trunc">${escapeHtml(r.descripcion) || '—'}</td>
       <td><span class="badge ${r.estado === 'aprobado' ? 'badge-approved' : 'badge-pending'}">${r.estado}</span></td>
       <td>
         <div class="actions">
@@ -304,10 +314,10 @@ function renderUsuarios() {
     return `
     <tr>
       <td class="td-main">
-        ${u.username}
+        ${escapeHtml(u.username)}
         ${isMe ? '<span style="font-size:0.7rem;color:var(--text-muted);margin-left:6px">(tú)</span>' : ''}
       </td>
-      <td>${u.email}</td>
+      <td>${escapeHtml(u.email)}</td>
       <td><span class="badge ${u.role === 'ADMIN' ? 'badge-admin' : 'badge-user'}">${u.role}</span></td>
       <td>
         <div class="actions">

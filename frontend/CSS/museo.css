@@ -1,5 +1,44 @@
 body { overflow: hidden; }
 
+/* ─── Aviso móvil ────────────────────────────────────── */
+#mobile-notice {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-base);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+}
+
+.mobile-notice-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 340px;
+}
+
+.mobile-notice-logo {
+  width: 56px;
+  height: 56px;
+  opacity: 0.5;
+}
+
+.mobile-notice-box h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.mobile-notice-box p {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+}
+
 #game-canvas {
   display: block;
   width: 100%;

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi perfil — Virtual VideoGame Museum</title>
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/nav.css" />
+  <link rel="stylesheet" href="css/ui.css" />
+</head>
+<body>
+<div class="page-wrapper">
+
+  <div class="page-header">
+    <div class="container-narrow">
+      <h1 class="section-title">Mi perfil</h1>
+      <p class="section-subtitle">Edita tu nombre de usuario, correo o contraseña.</p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container-narrow">
+
+      <!-- Datos generales -->
+      <div class="card" style="padding:32px;margin-bottom:24px">
+        <h2 style="font-size:1rem;font-weight:600;margin-bottom:24px;color:var(--text-primary)">Información de la cuenta</h2>
+        <form id="form-info" onsubmit="handleInfo(event)">
+          <div class="form-group">
+            <label class="form-label">Nombre de usuario</label>
+            <input class="form-input" type="text" id="p-username" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Correo electrónico</label>
+            <input class="form-input" type="email" id="p-email" />
+          </div>
+          <div class="msg" id="msg-info"></div>
+          <button class="btn btn-primary" type="submit" id="btn-info">Guardar cambios</button>
+        </form>
+      </div>
+
+      <!-- Cambio de contraseña -->
+      <div class="card" style="padding:32px">
+        <h2 style="font-size:1rem;font-weight:600;margin-bottom:24px;color:var(--text-primary)">Cambiar contraseña</h2>
+        <form id="form-pass" onsubmit="handlePass(event)">
+          <div class="form-group">
+            <label class="form-label">Contraseña actual</label>
+            <input class="form-input" type="password" id="p-current" autocomplete="current-password" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nueva contraseña</label>
+            <input class="form-input" type="password" id="p-new" autocomplete="new-password" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirmar nueva contraseña</label>
+            <input class="form-input" type="password" id="p-confirm" autocomplete="new-password" />
+          </div>
+          <div class="msg" id="msg-pass"></div>
+          <button class="btn btn-primary" type="submit" id="btn-pass">Cambiar contraseña</button>
+        </form>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/perfil.js"></script>
+</body>
+</html>

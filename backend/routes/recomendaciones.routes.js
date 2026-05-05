@@ -1,6 +1,7 @@
 const express = require('express');
 const db = require('../config/db');
 const { verifyToken, verifyAdmin } = require('../middleware/auth');
+const { writeLimiter } = require('../middleware/rateLimiter');
 
 const router = express.Router();
 
@@ -8,7 +9,7 @@ const router = express.Router();
 // POST /api/recomendaciones — enviar recomendación (usuario autenticado)
 // Body: { titulo, descripcion }
 // ---------------------------------------------------------------------------
-router.post('/', verifyToken, async (req, res) => {
+router.post('/', writeLimiter, verifyToken, async (req, res) => {
     const { titulo, descripcion } = req.body;
 
     if (!titulo) return res.status(400).json({ error: 'El título es obligatorio' });

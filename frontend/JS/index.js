@@ -3,12 +3,38 @@ const token = localStorage.getItem('token');
 
 renderNav('index');
 
-// ─── Stats ──────────────────────────────────────────────
+// ─── Stats + portadas ────────────────────────────────────
+function buildCoverGrid(juegos) {
+  const grid = document.getElementById('cover-grid');
+  if (!grid) return;
+
+  const conImg = juegos.filter(j => j.imagen);
+  const SLOTS  = 12; // 3 col × 4 filas
+
+  for (let i = 0; i < SLOTS; i++) {
+    const div = document.createElement('div');
+    div.className = 'cover-item';
+
+    const juego = conImg[i % Math.max(conImg.length, 1)];
+    if (juego && conImg.length > 0) {
+      const img = document.createElement('img');
+      img.src = juego.imagen.startsWith('http')
+        ? juego.imagen
+        : `${API_BASE}/${juego.imagen}`;
+      img.alt = juego.titulo;
+      div.appendChild(img);
+    }
+
+    grid.appendChild(div);
+  }
+}
+
 async function loadStats() {
   try {
     const res    = await fetch(`${API}/juegos`);
     const juegos = await res.json();
     document.getElementById('stat-juegos').textContent = juegos.length;
+    buildCoverGrid(juegos);
   } catch { /* silent */ }
 }
 

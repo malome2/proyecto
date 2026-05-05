@@ -1,0 +1,117 @@
+const nodemailer = require('nodemailer');
+const path = require('path');
+
+const transporter = nodemailer.createTransport({
+    host:   process.env.SMTP_HOST,
+    port:   parseInt(process.env.SMTP_PORT) || 587,
+    secure: process.env.SMTP_SECURE === 'true',
+    auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+    }
+});
+
+const LOGO_PATH = path.join(__dirname, '../../frontend/img/logo.svg');
+
+async function sendVerificationEmail(to, code, username = '') {
+    const digits = code.split('').map(d =>
+        `<span style="display:inline-block;width:44px;height:54px;line-height:54px;text-align:center;font-size:1.8rem;font-weight:700;color:#ffffff;background:#0d1b2e;border:1px solid rgba(61,143,181,0.45);border-radius:8px;margin:0 3px;font-family:'Courier New',monospace;">${d}</span>`
+    ).join('');
+
+    await transporter.sendMail({
+        from: process.env.SMTP_FROM || `Virtual VideoGame Museum <${process.env.SMTP_USER}>`,
+        to,
+        subject: '🎮 Tu código de verificación — Virtual VideoGame Museum',
+        attachments: [{
+            filename: 'logo.svg',
+            path: LOGO_PATH,
+            cid: 'logo@vgmuseum'
+        }],
+        html: `
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#07070f;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#07070f;padding:40px 20px;">
+  <tr><td align="center">
+    <table width="520" cellpadding="0" cellspacing="0" style="max-width:520px;width:100%;border-radius:16px;overflow:hidden;border:1px solid rgba(61,143,181,0.18);">
+
+      <!-- Header -->
+      <tr>
+        <td style="background:linear-gradient(160deg,#0b1929 0%,#0e2240 100%);padding:44px 40px 36px;text-align:center;border-bottom:1px solid rgba(61,143,181,0.2);">
+          <img src="cid:logo@vgmuseum" alt="VGM Logo" width="72" height="72"
+               style="display:inline-block;margin-bottom:18px;" />
+          <h1 style="margin:0 0 6px;font-size:1.35rem;font-weight:700;color:#ffffff;letter-spacing:0.04em;">
+            Virtual VideoGame Museum
+          </h1>
+          <p style="margin:0;font-size:0.72rem;color:#3d8fb5;letter-spacing:0.14em;text-transform:uppercase;">
+            Verificación de cuenta
+          </p>
+        </td>
+      </tr>
+
+      <!-- Body -->
+      <tr>
+        <td style="background:#0a0a18;padding:44px 40px 36px;">
+
+          <p style="margin:0 0 6px;font-size:1rem;color:#dcdcf0;font-weight:600;">
+            Hola${username ? ', ' + username : ''}
+          </p>
+          <p style="margin:0 0 36px;font-size:0.88rem;color:#8888aa;line-height:1.7;">
+            Gracias por registrarte en <strong style="color:#c8c8e8;">Virtual VideoGame Museum</strong>.
+            Introduce el siguiente código en la página de registro para activar tu cuenta.
+          </p>
+
+          <!-- Code box -->
+          <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px;">
+            <tr>
+              <td style="background:#060614;border:1px solid rgba(61,143,181,0.25);border-radius:14px;padding:32px 24px;text-align:center;">
+                <p style="margin:0 0 18px;font-size:0.7rem;color:#55556a;letter-spacing:0.14em;text-transform:uppercase;">
+                  Código de verificación
+                </p>
+                <div style="margin-bottom:18px;">
+                  ${digits}
+                </div>
+                <p style="margin:0;font-size:0.75rem;color:#44445a;">
+                  ⏱ Válido durante <strong style="color:#6a6a88;">15 minutos</strong>
+                </p>
+              </td>
+            </tr>
+          </table>
+
+          <!-- Info box -->
+          <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:8px;">
+            <tr>
+              <td style="border-left:3px solid rgba(61,143,181,0.5);padding:14px 18px;background:rgba(61,143,181,0.05);border-radius:0 8px 8px 0;">
+                <p style="margin:0;font-size:0.82rem;color:#6a6a88;line-height:1.6;">
+                  Si no has creado una cuenta en Virtual VideoGame Museum,
+                  puedes ignorar este correo con total seguridad.
+                </p>
+              </td>
+            </tr>
+          </table>
+
+        </td>
+      </tr>
+
+      <!-- Footer -->
+      <tr>
+        <td style="background:#060610;padding:22px 40px;text-align:center;border-top:1px solid rgba(255,255,255,0.04);">
+          <p style="margin:0 0 6px;font-size:0.7rem;color:#2a2a42;">
+            © 2025 Virtual VideoGame Museum
+          </p>
+          <p style="margin:0;font-size:0.68rem;color:#22223a;">
+            Este es un mensaje automático — por favor no respondas a este correo.
+          </p>
+        </td>
+      </tr>
+
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>`
+    });
+}
+
+module.exports = { sendVerificationEmail };

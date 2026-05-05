@@ -28,35 +28,34 @@ body {
 
 .logo {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  margin-bottom: 6px;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 
 .logo-icon {
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, #1e3a52, #2a5470);
-  border: 1px solid rgba(61,143,181,0.3);
-  border-radius: 8px;
+  width: 110px;
+  height: 110px;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
 }
 
 .logo-icon img {
-  width: 22px;
-  height: 22px;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
 }
 
 .logo-text {
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   color: var(--text-primary);
+  text-align: center;
+  line-height: 1.3;
 }
 
 .logo-text span { color: var(--accent); }
@@ -153,6 +152,85 @@ body {
 .login-btn:hover    { background: var(--accent-hover); }
 .login-btn:active   { transform: scale(0.98); }
 .login-btn:disabled { background: var(--text-muted); cursor: not-allowed; opacity: 0.6; }
+
+/* Verify step */
+.verify-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.verify-icon {
+  font-size: 2.4rem;
+  margin-bottom: 12px;
+}
+
+.verify-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+}
+
+.verify-subtitle {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.verify-subtitle strong {
+  color: var(--accent);
+}
+
+.code-inputs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.code-box {
+  width: 44px;
+  height: 54px;
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  color: var(--text-primary);
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  caret-color: transparent;
+}
+
+.code-box:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(61,143,181,0.15);
+}
+
+.code-box.filled {
+  border-color: rgba(61,143,181,0.5);
+  color: var(--accent);
+}
+
+.resend-link {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 18px;
+}
+
+.resend-link span {
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.resend-link span:hover {
+  color: var(--accent-hover);
+}
 
 /* Back link */
 .back-link {

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login — Museo de Videojuegos</title>
+  <title>Login — Virtual VideoGame Museum</title>
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/ui.css" />
   <link rel="stylesheet" href="css/login.css" />
@@ -12,7 +12,7 @@
   <div class="login-card">
     <div class="logo">
       <div class="logo-icon"><img src="img/logo.svg" alt="Logo" /></div>
-      <div class="logo-text">MUSEO<span>VG</span></div>
+      <div class="logo-text">Virtual <span>VideoGame</span> Museum</div>
     </div>
     <p class="login-subtitle">Accede a tu cuenta para explorar el museo</p>
 
@@ -47,11 +47,31 @@
       </div>
       <div class="login-form-group">
         <label class="login-label" for="reg-password">Contraseña</label>
-        <input class="login-input" type="password" id="reg-password" placeholder="Mínimo 6 caracteres" minlength="6" required />
+        <input class="login-input" type="password" id="reg-password" placeholder="Mínimo 8 caracteres" required />
       </div>
       <button type="submit" class="login-btn" id="btn-register">Crear cuenta</button>
       <div class="msg" id="msg-register"></div>
     </form>
+
+    <!-- Verify form -->
+    <div id="form-verify" style="display:none">
+      <div class="verify-header">
+        <div class="verify-icon">✉</div>
+        <p class="verify-title">Revisa tu correo</p>
+        <p class="verify-subtitle">Hemos enviado un código de 6 dígitos a <strong id="verify-email-display"></strong></p>
+      </div>
+      <div class="code-inputs">
+        <input class="code-box" type="text" inputmode="numeric" maxlength="1" />
+        <input class="code-box" type="text" inputmode="numeric" maxlength="1" />
+        <input class="code-box" type="text" inputmode="numeric" maxlength="1" />
+        <input class="code-box" type="text" inputmode="numeric" maxlength="1" />
+        <input class="code-box" type="text" inputmode="numeric" maxlength="1" />
+        <input class="code-box" type="text" inputmode="numeric" maxlength="1" />
+      </div>
+      <button class="login-btn" id="btn-verify" onclick="handleVerify()">Verificar cuenta</button>
+      <div class="msg" id="msg-verify"></div>
+      <p class="resend-link">¿No has recibido nada? <span onclick="handleResend()">Reenviar código</span></p>
+    </div>
 
     <a href="index.html" class="back-link">&larr; Volver al inicio</a>
   </div>

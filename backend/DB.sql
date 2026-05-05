@@ -6,8 +6,15 @@ CREATE TABLE usuarios (
   username VARCHAR(50) NOT NULL,
   email VARCHAR(100) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
-  role ENUM('USER','ADMIN') DEFAULT 'USER'
+  role ENUM('USER','ADMIN') DEFAULT 'USER',
+  email_verified TINYINT(1) NOT NULL DEFAULT 0,
+  verification_token VARCHAR(255) DEFAULT NULL
 );
+
+-- Migración para bases de datos existentes:
+-- ALTER TABLE usuarios ADD COLUMN email_verified TINYINT(1) NOT NULL DEFAULT 0;
+-- ALTER TABLE usuarios ADD COLUMN verification_token VARCHAR(255) DEFAULT NULL;
+-- UPDATE usuarios SET email_verified = 1; -- marcar usuarios existentes como verificados
 
 CREATE TABLE juegos (
   id INT AUTO_INCREMENT PRIMARY KEY,
