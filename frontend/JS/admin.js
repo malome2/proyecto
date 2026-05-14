@@ -10,6 +10,8 @@ const API = `${API_BASE}/api`;
 
 renderNav('admin');
 
+let pendingRecId = null;
+
 // ─── UTILS ────────────────────────────────────────────────────────────────────
 
 function escapeHtml(str) {
@@ -108,6 +110,7 @@ function renderJuegos() {
 }
 
 function openGameModal(id = null) {
+  pendingRecId = null;
   document.getElementById('form-juego').reset();
   document.getElementById('msg-juego').className = 'msg';
   document.getElementById('hint-imagen').textContent = '';
@@ -164,6 +167,11 @@ fd.append('video_url',   document.getElementById('juego-video-url').value);
     } else {
       closeModal('modal-juego');
       loadJuegos();
+      if (pendingRecId) {
+        await authFetch(`${API}/recomendaciones/${pendingRecId}`, { method: 'DELETE' });
+        pendingRecId = null;
+        loadRecs();
+      }
     }
   } catch {
     showMsg('msg-juego', 'No se pudo conectar con el servidor.', 'error');
@@ -214,10 +222,17 @@ function renderRecs() {
     return;
   }
 
-  tbody.innerHTML = data.map(r => `
+  tbody.innerHTML = data.map(r => {
+    const tierBadge = (r.donor_tier === 'arcade' || r.donor_tier === 'coleccionista')
+      ? '<span style="font-size:0.68rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#3d8fb5;background:rgba(61,143,181,0.1);border:1px solid rgba(61,143,181,0.25);border-radius:4px;padding:2px 6px;margin-left:6px">Prioridad</span>'
+      : '';
+    const garantizada = (r.primer_arcade && r.estado === 'pendiente')
+      ? '<div style="font-size:0.72rem;color:#c8a84b;margin-top:3px;font-weight:600">Primer juego</div>'
+      : '';
+    return `
     <tr>
       <td class="td-main">${escapeHtml(r.titulo)}</td>
-      <td>${escapeHtml(r.username)}</td>
+      <td>${escapeHtml(r.username)}${tierBadge}${garantizada}</td>
       <td class="td-trunc">${escapeHtml(r.descripcion) || '—'}</td>
       <td><span class="badge ${r.estado === 'aprobado' ? 'badge-approved' : 'badge-pending'}">${r.estado}</span></td>
       <td>
@@ -229,8 +244,8 @@ function renderRecs() {
           <button class="btn-sm danger" onclick="deleteRec(${r.id})">Rechazar</button>
         </div>
       </td>
-    </tr>
-  `).join('');
+    </tr>`;
+  }).join('');
 }
 
 function openRecModal(id) {
@@ -265,6 +280,7 @@ function openGameFromRec(id) {
   const r = allRecs.find(x => x.id === id);
   if (!r) return;
   openGameModal();
+  pendingRecId = id;
   document.getElementById('juego-titulo').value      = r.titulo;
   document.getElementById('juego-descripcion').value = r.descripcion || '';
 }

@@ -232,6 +232,23 @@ body {
   color: var(--accent-hover);
 }
 
+/* Forgot password link */
+.forgot-link {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 14px;
+  margin-bottom: 0;
+}
+
+.forgot-link span {
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.forgot-link span:hover { color: var(--accent-hover); }
+
 /* Back link */
 .back-link {
   display: block;

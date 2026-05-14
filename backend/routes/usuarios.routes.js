@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const db = require('../config/db');
 const { verifyToken, verifyAdmin } = require('../middleware/auth');
 const { writeLimiter } = require('../middleware/rateLimiter');
+const { sendConfirmacionCambio } = require('../config/mailer');
 
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
@@ -26,51 +27,125 @@ router.get('/perfil', verifyToken, async (req, res) => {
 });
 
 // ---------------------------------------------------------------------------
-// PUT /api/usuarios/perfil — editar perfil propio
-// Body: { username?, email?, currentPassword?, newPassword? }
+// PUT /api/usuarios/perfil — editar perfil propio (solo username, sin confirmación)
+// Body: { username }
 // ---------------------------------------------------------------------------
 router.put('/perfil', writeLimiter, verifyToken, async (req, res) => {
-    const { username, email, currentPassword, newPassword } = req.body;
+    const { username } = req.body;
+
+    try {
+        const [rows] = await db.query('SELECT * FROM usuarios WHERE id = ?', [req.user.id]);
+        if (rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+        if (username) {
+            await db.query('UPDATE usuarios SET username = ? WHERE id = ?', [username, req.user.id]);
+        }
+
+        res.json({ message: 'Perfil actualizado correctamente' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error del servidor' });
+    }
+});
+
+// ---------------------------------------------------------------------------
+// POST /api/usuarios/perfil/solicitar-cambio
+// Genera código y envía email de confirmación para cambio de email o contraseña
+// Body: { tipo: 'email'|'password', email?, currentPassword?, newPassword? }
+// ---------------------------------------------------------------------------
+router.post('/perfil/solicitar-cambio', writeLimiter, verifyToken, async (req, res) => {
+    const { tipo, email, currentPassword, newPassword } = req.body;
+
+    if (!['email', 'password'].includes(tipo)) {
+        return res.status(400).json({ error: 'Tipo de cambio inválido' });
+    }
 
     try {
         const [rows] = await db.query('SELECT * FROM usuarios WHERE id = ?', [req.user.id]);
         if (rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
         const user = rows[0];
 
-        // Cambio de contraseña: requiere la contraseña actual
-        let newHash = null;
-        if (newPassword) {
-            if (!currentPassword) {
-                return res.status(400).json({ error: 'Introduce tu contraseña actual para cambiarla' });
+        let nuevoHash  = null;
+        let nuevoEmail = null;
+
+        if (tipo === 'password') {
+            if (!currentPassword || !newPassword) {
+                return res.status(400).json({ error: 'Faltan datos para cambiar la contraseña' });
             }
             const valid = await bcrypt.compare(currentPassword, user.password);
-            if (!valid) {
-                return res.status(401).json({ error: 'La contraseña actual no es correcta' });
-            }
+            if (!valid) return res.status(401).json({ error: 'La contraseña actual no es correcta' });
             if (!PASSWORD_REGEX.test(newPassword)) {
                 return res.status(400).json({
                     error: 'La nueva contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula y un número'
                 });
             }
-            newHash = await bcrypt.hash(newPassword, 10);
-        }
-
-        // Email: comprobar que no esté en uso por otro usuario
-        if (email && email !== user.email) {
+            nuevoHash = await bcrypt.hash(newPassword, 10);
+        } else {
+            if (!email) return res.status(400).json({ error: 'Falta el nuevo correo' });
+            if (email === user.email) return res.status(400).json({ error: 'El nuevo correo es igual al actual' });
             const [dup] = await db.query('SELECT id FROM usuarios WHERE email = ? AND id != ?', [email, user.id]);
             if (dup.length > 0) return res.status(409).json({ error: 'Ese email ya está en uso' });
+            nuevoEmail = email;
         }
 
+        const codigo    = String(Math.floor(100000 + Math.random() * 900000));
+        const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
         await db.query(
-            `UPDATE usuarios SET
-                username = COALESCE(?, username),
-                email    = COALESCE(?, email),
-                password = COALESCE(?, password)
-             WHERE id = ?`,
-            [username || null, email || null, newHash, user.id]
+            'DELETE FROM cambios_pendientes WHERE usuario_id = ? AND tipo = ?',
+            [user.id, tipo]
+        );
+        await db.query(
+            'INSERT INTO cambios_pendientes (usuario_id, tipo, nuevo_email, nuevo_hash, codigo, expires_at) VALUES (?, ?, ?, ?, ?, ?)',
+            [user.id, tipo, nuevoEmail, nuevoHash, codigo, expiresAt]
         );
 
-        res.json({ message: 'Perfil actualizado correctamente' });
+        await sendConfirmacionCambio(user.email, codigo, user.username, tipo);
+
+        res.json({ message: 'Código enviado a tu correo actual' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error del servidor' });
+    }
+});
+
+// ---------------------------------------------------------------------------
+// POST /api/usuarios/perfil/confirmar-cambio
+// Verifica el código y aplica el cambio de email o contraseña
+// Body: { tipo: 'email'|'password', codigo: '123456' }
+// ---------------------------------------------------------------------------
+router.post('/perfil/confirmar-cambio', writeLimiter, verifyToken, async (req, res) => {
+    const { tipo, codigo } = req.body;
+
+    if (!tipo || !codigo) return res.status(400).json({ error: 'Faltan datos' });
+
+    try {
+        const [rows] = await db.query(
+            `SELECT * FROM cambios_pendientes
+             WHERE usuario_id = ? AND tipo = ? AND used = 0 AND expires_at > NOW()
+             ORDER BY id DESC LIMIT 1`,
+            [req.user.id, tipo]
+        );
+
+        if (rows.length === 0) {
+            return res.status(400).json({ error: 'No hay ningún cambio pendiente o el código ha expirado' });
+        }
+
+        const cambio = rows[0];
+        if (String(cambio.codigo) !== String(codigo)) {
+            return res.status(400).json({ error: 'Código incorrecto' });
+        }
+
+        if (tipo === 'password') {
+            await db.query('UPDATE usuarios SET password = ? WHERE id = ?', [cambio.nuevo_hash, req.user.id]);
+        } else {
+            await db.query('UPDATE usuarios SET email = ? WHERE id = ?', [cambio.nuevo_email, req.user.id]);
+        }
+
+        await db.query('UPDATE cambios_pendientes SET used = 1 WHERE id = ?', [cambio.id]);
+
+        const msg = tipo === 'password' ? 'Contraseña actualizada correctamente' : 'Correo actualizado correctamente';
+        res.json({ message: msg });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Error del servidor' });

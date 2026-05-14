@@ -1,9 +1,10 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const db = require('../config/db');
 const { authLimiter } = require('../middleware/rateLimiter');
-const { sendVerificationEmail } = require('../config/mailer');
+const { sendVerificationEmail, sendPasswordResetEmail } = require('../config/mailer');
 
 const router = express.Router();
 
@@ -159,6 +160,79 @@ router.post('/login', authLimiter, async (req, res) => {
         );
 
         res.json({ token, user: { id: user.id, username: user.username, role: user.role } });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error del servidor' });
+    }
+});
+
+// POST /api/auth/recuperar — envía email con link de reset
+router.post('/recuperar', authLimiter, async (req, res) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email requerido' });
+
+    try {
+        const [rows] = await db.query(
+            'SELECT id, username FROM usuarios WHERE email = ? AND email_verified = 1',
+            [email]
+        );
+
+        // Respuesta genérica para no revelar si el email existe
+        if (rows.length === 0) {
+            return res.json({ message: 'Si ese correo está registrado, recibirás un enlace en breve.' });
+        }
+
+        const user      = rows[0];
+        const token     = crypto.randomBytes(32).toString('hex');
+        const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
+
+        await db.query('DELETE FROM password_resets WHERE usuario_id = ?', [user.id]);
+        await db.query(
+            'INSERT INTO password_resets (usuario_id, token, expires_at) VALUES (?, ?, ?)',
+            [user.id, token, expiresAt]
+        );
+
+        const frontendUrl = process.env.FRONTEND_URL || 'http://127.0.0.1:5500';
+        const resetUrl    = `${frontendUrl}/reset-password.html?token=${token}`;
+
+        await sendPasswordResetEmail(email, resetUrl, user.username);
+
+        res.json({ message: 'Si ese correo está registrado, recibirás un enlace en breve.' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error del servidor' });
+    }
+});
+
+// POST /api/auth/reset-password — aplica la nueva contraseña con el token
+router.post('/reset-password', authLimiter, async (req, res) => {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) return res.status(400).json({ error: 'Faltan datos' });
+
+    if (!PASSWORD_REGEX.test(newPassword)) {
+        return res.status(400).json({
+            error: 'La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula y un número'
+        });
+    }
+
+    try {
+        const [rows] = await db.query(
+            'SELECT * FROM password_resets WHERE token = ? AND used = 0 AND expires_at > NOW()',
+            [token]
+        );
+
+        if (rows.length === 0) {
+            return res.status(400).json({ error: 'El enlace no es válido o ha expirado' });
+        }
+
+        const reset   = rows[0];
+        const newHash = await bcrypt.hash(newPassword, 10);
+
+        await db.query('UPDATE usuarios SET password = ? WHERE id = ?', [newHash, reset.usuario_id]);
+        await db.query('UPDATE password_resets SET used = 1 WHERE id = ?', [reset.id]);
+
+        res.json({ message: 'Contraseña actualizada correctamente. Ya puedes iniciar sesión.' });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Error del servidor' });

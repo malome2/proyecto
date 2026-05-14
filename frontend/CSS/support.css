@@ -133,12 +133,12 @@
 
 .amount-btn {
   padding: 10px;
-  background: var(--bg-input);
-  border: 1px solid var(--border);
+  background: rgba(61,143,181,0.12);
+  border: 1px solid rgba(61,143,181,0.45);
   border-radius: 8px;
   font-size: 0.88rem;
-  font-weight: 600;
-  color: var(--text-secondary);
+  font-weight: 700;
+  color: var(--accent);
   cursor: pointer;
   font-family: inherit;
   transition: all 0.15s;
@@ -148,8 +148,8 @@
 .amount-btn:hover,
 .amount-btn.selected {
   border-color: var(--accent);
-  color: var(--accent);
-  background: rgba(61,143,181,0.08);
+  color: #fff;
+  background: var(--accent);
 }
 
 .amount-custom-row {

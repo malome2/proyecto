@@ -11,6 +11,7 @@ function switchTab(tab) {
   document.getElementById('form-login').style.display    = tab === 'login'    ? 'block' : 'none';
   document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
   document.getElementById('form-verify').style.display   = 'none';
+  document.getElementById('form-recover').style.display  = 'none';
   document.getElementById('tab-login').classList.toggle('active', tab === 'login');
   document.getElementById('tab-register').classList.toggle('active', tab === 'register');
 }
@@ -203,6 +204,51 @@ async function handleVerify() {
     showMsg('msg-verify', 'No se pudo conectar con el servidor', 'error');
   } finally {
     btn.disabled = false; btn.textContent = 'Verificar cuenta';
+  }
+}
+
+// ─── Recover password ────────────────────────────────────
+function showRecoverStep() {
+  document.getElementById('form-login').style.display    = 'none';
+  document.getElementById('form-register').style.display = 'none';
+  document.getElementById('form-verify').style.display   = 'none';
+  document.getElementById('form-recover').style.display  = 'block';
+  document.getElementById('tab-login').classList.remove('active');
+  document.getElementById('tab-register').classList.remove('active');
+  document.getElementById('recover-email').focus();
+}
+
+async function handleRecuperar() {
+  const email = document.getElementById('recover-email').value.trim();
+  const btn   = document.getElementById('btn-recover');
+
+  if (!email) {
+    showMsg('msg-recover', 'Introduce tu email', 'error');
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Enviando...';
+
+  try {
+    const res  = await fetch(`${API}/recuperar`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ email })
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      showMsg('msg-recover', data.message, 'success');
+      btn.style.display = 'none';
+    } else {
+      showMsg('msg-recover', data.error || 'Error al enviar el enlace', 'error');
+    }
+  } catch {
+    showMsg('msg-recover', 'No se pudo conectar con el servidor', 'error');
+  } finally {
+    if (!btn.style.display || btn.style.display !== 'none') {
+      btn.disabled = false; btn.textContent = 'Enviar enlace';
+    }
   }
 }
 

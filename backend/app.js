@@ -6,6 +6,7 @@ const authRoutes = require('./routes/auth.routes');
 const juegosRoutes = require('./routes/juegos.routes');
 const recomendacionesRoutes = require('./routes/recomendaciones.routes');
 const usuariosRoutes = require('./routes/usuarios.routes');
+const pagosRoutes = require('./routes/pagos.routes');
 const { globalLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
@@ -34,6 +35,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/juegos', juegosRoutes);
 app.use('/api/recomendaciones', recomendacionesRoutes);
 app.use('/api/usuarios', usuariosRoutes);
+app.use('/api/pagos', pagosRoutes);
 
 app.get('/', (req, res) => {
   res.send('API Museo Videojuegos funcionando');

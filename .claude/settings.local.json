@@ -1,6 +1,8 @@
 {
   "permissions": {
     "allow": [
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\marcl\\\\Desktop\\\\CLASE\\\\2\\\\Proyecto\\\\final\\\\backend\" -Recurse -Include \"*.js\" -Exclude node_modules)",
+      "Bash(Select-Object FullName)",
       "Bash(npm install *)"
     ]
   }

@@ -1,0 +1,65 @@
+Entrega:
+✔ Documentació en PDF, presentació PPT o similar.
+✔ Materials documentals addicionals, materials gràfics generats, dissenys i prototipats.
+✔ Codi font del projecte.
+✔ Vídeo promocional en anglès
+✔ Materials documentals i gràfics generats.
+✔ El lliurament es farà per ClickEdu. Si tot el material supera el límit de pujada, es lliurarà un enllaç de descàrrega per
+Google Drive.
+
+
+CONTINGUT
+A continuació es llisten els principals punts que s’hauran de realitzar en el projecte.
+1. Definició projecte
+1.1. Introducció
+1.1.1. Explicació de què tracta
+1.1.2. Propòsits i objectius que es volen assolir
+2. Planificació del projecte
+2.1. Temporització del projecte
+2.2. Recursos i materials
+2.3. Tecnologies escollides per a dur a terme el desenvolupament
+3. Empresa: constitució, tràmits i processos inicials*
+3.1. Descripció detallada de l’empresa. Trets diferencials
+3.2. Forma Jurídica i tràmits de constitució
+3.3. RSC i ODS proposats. Pòster
+3.4. Organigrama i repartiment de tasques
+3.5. Conveni col·lectiu i contractació
+3.6. Estudi de riscos i Pla de prevenció. Pòster
+4. Disseny aplicació/pàgina web
+4.1. Especificació Funcional del Sistema
+4.1.1. Especificació del sistema proposat
+4.1.1.1.Descripció dels actors
+4.1.1.2.Model de casos d’ús (amb descripció de casos d’ús i fluxes d’esdeveniments).
+4.1.2. Disseny del sistema.
+4.1.2.1.Diagrames de seqüència dels casos d’ús més rellevants.
+4.1.2.2.Diagrama de classes de disseny.
+4.1.2.3.Diagrames d’estat de les classes i/o casos d’ús que calguin.
+4.1.3. Interfícies d’usuari: Mapa de formularis
+4.2. Bases de dades*
+4.2.1. Quina informació es vol emmagatzemar?
+Desenvolupament D'aplicacions Web
+0616. Projecte | PROJECTE FINAL
+4.2.2. Model E/R
+4.2.3. Esquema lògic (model relacional) normalitzat fins a la 3ª forma normal.
+4.3. Disseny de la interfície Web
+4.3.1. Prototipat
+4.3.2. Guia d’estil
+5. Desenvolupament aplicació/pàgina web**
+5.1. Elements gràfics i multimèdia
+5.2. Àrea clients
+5.3. Àrea administració
+6. Proves
+6.1. Proves d’usabilitat
+6.2. Proves d’accessibilitat
+6.3. Proves (unitàries, d’integració i de sistema)
+7. Manual d’instal·lació i configuració
+8. Guia d’usuari
+9. Documentació (ApiDoc)
+10. Conclusions
+10.1. Propòsits i objectius aconseguits (totals o parcials)
+10.2. Problemes i dificultats
+10.3. Opinió personal i comentaris
+11. Bibliografia, webgrafia i altres recursos.
+12. Annexes
+*Tots els apartats són obligatoris excepte si el professor responsable del HS6 informa del contrari.
+**Els subapartats poden ser redefinits en funció de les particularitats tècniques del projecte.

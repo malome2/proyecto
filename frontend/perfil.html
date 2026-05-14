@@ -36,6 +36,24 @@
           <div class="msg" id="msg-info"></div>
           <button class="btn btn-primary" type="submit" id="btn-info">Guardar cambios</button>
         </form>
+
+        <!-- Panel confirmación: cambio de email -->
+        <div id="panel-confirm-email" style="display:none;margin-top:24px;padding-top:24px;border-top:1px solid var(--border)">
+          <p style="font-size:0.85rem;font-weight:600;color:var(--text-primary);margin-bottom:6px">Confirma el cambio de correo</p>
+          <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:18px">
+            Hemos enviado un código de 6 dígitos a tu correo actual. Introdúcelo para confirmar el cambio.
+          </p>
+          <div class="form-group">
+            <label class="form-label">Código de confirmación</label>
+            <input class="form-input" type="text" id="code-email" maxlength="6" placeholder="123456"
+                   style="letter-spacing:0.25em;font-size:1.1rem;text-align:center" />
+          </div>
+          <div class="msg" id="msg-confirm-email"></div>
+          <div style="display:flex;gap:10px;margin-top:8px">
+            <button class="btn btn-primary" onclick="confirmarCambio('email')">Confirmar</button>
+            <button class="btn btn-outline" onclick="cancelarConfirmacion('email')">Cancelar</button>
+          </div>
+        </div>
       </div>
 
       <!-- Cambio de contraseña -->
@@ -57,6 +75,24 @@
           <div class="msg" id="msg-pass"></div>
           <button class="btn btn-primary" type="submit" id="btn-pass">Cambiar contraseña</button>
         </form>
+
+        <!-- Panel confirmación: cambio de contraseña -->
+        <div id="panel-confirm-password" style="display:none;margin-top:24px;padding-top:24px;border-top:1px solid var(--border)">
+          <p style="font-size:0.85rem;font-weight:600;color:var(--text-primary);margin-bottom:6px">Confirma el cambio de contraseña</p>
+          <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:18px">
+            Hemos enviado un código de 6 dígitos a tu correo. Introdúcelo para aplicar el cambio.
+          </p>
+          <div class="form-group">
+            <label class="form-label">Código de confirmación</label>
+            <input class="form-input" type="text" id="code-password" maxlength="6" placeholder="123456"
+                   style="letter-spacing:0.25em;font-size:1.1rem;text-align:center" />
+          </div>
+          <div class="msg" id="msg-confirm-password"></div>
+          <div style="display:flex;gap:10px;margin-top:8px">
+            <button class="btn btn-primary" onclick="confirmarCambio('password')">Confirmar</button>
+            <button class="btn btn-outline" onclick="cancelarConfirmacion('password')">Cancelar</button>
+          </div>
+        </div>
       </div>
 
     </div>

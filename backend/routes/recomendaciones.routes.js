@@ -15,9 +15,19 @@ router.post('/', writeLimiter, verifyToken, async (req, res) => {
     if (!titulo) return res.status(400).json({ error: 'El título es obligatorio' });
 
     try {
+        let primerArcade = 0;
+        const [userRows] = await db.query('SELECT donor_tier FROM usuarios WHERE id = ?', [req.user.id]);
+        if (userRows[0]?.donor_tier === 'arcade') {
+            const [prev] = await db.query(
+                'SELECT COUNT(*) AS cnt FROM recomendaciones WHERE usuario_id = ?',
+                [req.user.id]
+            );
+            if (prev[0].cnt === 0) primerArcade = 1;
+        }
+
         const [result] = await db.query(
-            'INSERT INTO recomendaciones (titulo, descripcion, usuario_id) VALUES (?, ?, ?)',
-            [titulo, descripcion || null, req.user.id]
+            'INSERT INTO recomendaciones (titulo, descripcion, usuario_id, primer_arcade) VALUES (?, ?, ?, ?)',
+            [titulo, descripcion || null, req.user.id, primerArcade]
         );
         res.status(201).json({ id: result.insertId, message: 'Recomendación enviada correctamente' });
     } catch (err) {
@@ -50,10 +60,10 @@ router.get('/', verifyAdmin, async (req, res) => {
     try {
         const [rows] = await db.query(
             `SELECT r.id, r.titulo, r.descripcion, r.estado, r.usuario_id,
-                    u.username
+                    u.username, u.donor_tier, r.primer_arcade
              FROM recomendaciones r
              JOIN usuarios u ON u.id = r.usuario_id
-             ORDER BY r.id DESC`
+             ORDER BY FIELD(u.donor_tier, 'arcade', 'coleccionista', 'visitante', 'none') ASC, r.id DESC`
         );
         res.json(rows);
     } catch (err) {

@@ -33,7 +33,24 @@
       </div>
       <button type="submit" class="login-btn" id="btn-login">Entrar</button>
       <div class="msg" id="msg-login"></div>
+      <p class="forgot-link"><span onclick="showRecoverStep()">¿Olvidaste tu contraseña?</span></p>
     </form>
+
+    <!-- Recover form -->
+    <div id="form-recover" style="display:none">
+      <div class="verify-header">
+        <div class="verify-icon"><img src="img/icon4.svg" alt="" style="width:120px;height:120px;object-fit:contain" /></div>
+        <p class="verify-title">Recuperar contraseña</p>
+        <p class="verify-subtitle">Introduce tu email y te enviaremos un enlace para crear una nueva contraseña.</p>
+      </div>
+      <div class="login-form-group">
+        <label class="login-label" for="recover-email">Email</label>
+        <input class="login-input" type="email" id="recover-email" placeholder="tu@email.com" />
+      </div>
+      <button class="login-btn" id="btn-recover" onclick="handleRecuperar()">Enviar enlace</button>
+      <div class="msg" id="msg-recover"></div>
+      <p class="resend-link"><span onclick="switchTab('login')">← Volver al inicio de sesión</span></p>
+    </div>
 
     <!-- Register form -->
     <form id="form-register" onsubmit="handleRegister(event)" style="display:none">
@@ -56,7 +73,7 @@
     <!-- Verify form -->
     <div id="form-verify" style="display:none">
       <div class="verify-header">
-        <div class="verify-icon">✉</div>
+        <div class="verify-icon"><img src="img/icon4.svg" alt="" style="width:48px;height:48px;object-fit:contain" /></div>
         <p class="verify-title">Revisa tu correo</p>
         <p class="verify-subtitle">Hemos enviado un código de 6 dígitos a <strong id="verify-email-display"></strong></p>
       </div>
