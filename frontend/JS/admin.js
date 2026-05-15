@@ -114,7 +114,6 @@ function openGameModal(id = null) {
   document.getElementById('form-juego').reset();
   document.getElementById('msg-juego').className = 'msg';
   document.getElementById('hint-imagen').textContent = '';
-  document.getElementById('hint-video').textContent  = '';
   document.getElementById('hint-musica').textContent = '';
 
   if (id !== null) {
@@ -124,11 +123,8 @@ function openGameModal(id = null) {
     document.getElementById('juego-id').value                 = j.id;
     document.getElementById('juego-titulo').value             = j.titulo || '';
     document.getElementById('juego-descripcion').value        = j.descripcion || '';
-document.getElementById('juego-video-url').value          =
-      (j.video_url && j.video_url.startsWith('http')) ? j.video_url : '';
+    document.getElementById('juego-video-url').value         = j.video_url || '';
     if (j.imagen)     document.getElementById('hint-imagen').textContent  = 'Actual: ' + fileName(j.imagen);
-    if (j.video_url && !j.video_url.startsWith('http'))
-                      document.getElementById('hint-video').textContent   = 'Actual: ' + fileName(j.video_url);
     if (j.musica_url) document.getElementById('hint-musica').textContent  = 'Actual: ' + fileName(j.musica_url);
   } else {
     document.getElementById('modal-juego-title').textContent = 'Añadir juego';
@@ -153,10 +149,8 @@ async function saveGame(e) {
 fd.append('video_url',   document.getElementById('juego-video-url').value);
 
   const imgFile   = document.getElementById('juego-imagen').files[0];
-  const videoFile = document.getElementById('juego-video').files[0];
   const musicFile = document.getElementById('juego-musica').files[0];
   if (imgFile)   fd.append('imagen', imgFile);
-  if (videoFile) fd.append('video',  videoFile);
   if (musicFile) fd.append('musica', musicFile);
 
   try {

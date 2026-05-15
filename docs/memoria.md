@@ -364,8 +364,8 @@ SK_TEST=<clave_secreta_stripe>
 - Respuesta 200: array de todos los juegos ordenados por id.
 
 **POST /api/juegos** — `multipart/form-data`
-- Campos de texto: `titulo`* (obligatorio), `descripcion`, `pos_x`, `pos_y`, `video_url` (URL externa opcional).
-- Archivos: `imagen` (5 MB), `musica` (20 MB), `video` (200 MB). Si se sube archivo `video`, tiene prioridad sobre `video_url`.
+- Campos de texto: `titulo`* (obligatorio), `descripcion`, `pos_x`, `pos_y`, `video_url` (URL de YouTube, opcional).
+- Archivos: `imagen` (5 MB), `musica` (20 MB). El vídeo solo se acepta como URL externa, no como archivo.
 - Imagen, música y vídeo se suben a Cloudinary; los archivos temporales se borran del disco.
 - La música y el vídeo usan `resource_type: 'video'` en la API de Cloudinary.
 - Respuesta 201: `{ id, message }`.
