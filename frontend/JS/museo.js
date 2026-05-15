@@ -647,6 +647,11 @@ async function init() {
     console.warn('No se pudieron cargar los juegos:',e);
   }
 
+  for (let i=games.length-1; i>0; i--) {
+    const j=Math.floor(Math.random()*(i+1));
+    [games[i],games[j]]=[games[j],games[i]];
+  }
+
   buildMap(games.length);
   resize();
   window.addEventListener('resize',resize);

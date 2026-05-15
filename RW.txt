@@ -1,0 +1,5 @@
+host mysql.railway.internal
+user root
+pass cNtxinuSaZRfqPPyKxBksHwAdSQXZJRv
+data railway
+port 3306

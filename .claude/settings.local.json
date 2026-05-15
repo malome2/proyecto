@@ -3,7 +3,12 @@
     "allow": [
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\marcl\\\\Desktop\\\\CLASE\\\\2\\\\Proyecto\\\\final\\\\backend\" -Recurse -Include \"*.js\" -Exclude node_modules)",
       "Bash(Select-Object FullName)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\marcl\\\\Desktop\\\\CLASE\\\\2\\\\Proyecto\\\\final\" -Recurse -Force)",
+      "Bash(Select-Object -Property FullName)",
+      "Bash(Sort-Object FullName)",
+      "Bash(Remove-Item *)",
+      "Bash(rm *)"
     ]
   }
 }

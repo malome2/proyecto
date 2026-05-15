@@ -77,7 +77,7 @@ function deleteLocalFile(filePath) {
     try { fs.unlinkSync(filePath); } catch { /* ya no existe */ }
 }
 
-// Sube una imagen al disco temporal a Cloudinary y borra el archivo local
+// Sube una imagen a Cloudinary y borra el archivo local
 async function uploadToCloudinary(localPath) {
     const result = await cloudinary.uploader.upload(localPath, {
         folder: 'museo-videojuegos'
@@ -86,11 +86,23 @@ async function uploadToCloudinary(localPath) {
     return result.secure_url;
 }
 
-// Borra una imagen de Cloudinary a partir de su URL
-async function deleteCloudinaryImage(url) {
+// Sube audio o vídeo a Cloudinary y borra el archivo local
+async function uploadMediaToCloudinary(localPath) {
+    const result = await cloudinary.uploader.upload(localPath, {
+        folder: 'museo-videojuegos',
+        resource_type: 'video'
+    });
+    deleteLocalFile(localPath);
+    return result.secure_url;
+}
+
+// Borra cualquier asset de Cloudinary (imagen o audio/vídeo)
+async function deleteCloudinaryAsset(url) {
     if (!url?.startsWith('https://res.cloudinary.com')) return;
     const match = url.match(/\/upload\/(?:v\d+\/)?(.+)\.[^.]+$/);
-    if (match) await cloudinary.uploader.destroy(match[1]).catch(() => {});
+    if (!match) return;
+    const resourceType = url.includes('/video/upload/') ? 'video' : 'image';
+    await cloudinary.uploader.destroy(match[1], { resource_type: resourceType }).catch(() => {});
 }
 
 // ---------------------------------------------------------------------------
@@ -141,13 +153,17 @@ router.post('/', verifyAdmin, async (req, res) => {
     if (!titulo) return res.status(400).json({ error: 'El título es obligatorio' });
 
     try {
-        // Imagen → Cloudinary; música y vídeo → disco local
+        // Imagen, música y vídeo → Cloudinary
         let imagen = null;
         if (req.files?.imagen?.[0]) {
             imagen = await uploadToCloudinary(req.files.imagen[0].path);
         }
-        const musica_url = req.files?.musica?.[0]?.path.replace(/\\/g, '/') || null;
-        const video      = req.files?.video?.[0]?.path.replace(/\\/g, '/')  || video_url || null;
+        const musica_url = req.files?.musica?.[0]
+            ? await uploadMediaToCloudinary(req.files.musica[0].path)
+            : null;
+        const video = req.files?.video?.[0]
+            ? await uploadMediaToCloudinary(req.files.video[0].path)
+            : (video_url || null);
 
         const [result] = await db.query(
             `INSERT INTO juegos (titulo, descripcion, imagen, video_url, musica_url, pos_x, pos_y, created_by)
@@ -193,18 +209,18 @@ router.put('/:id', verifyAdmin, async (req, res) => {
         let video      = juego.video_url;
 
         if (req.files?.imagen) {
-            await deleteCloudinaryImage(juego.imagen); // borra la antigua de Cloudinary
+            await deleteCloudinaryAsset(juego.imagen);
             imagen = await uploadToCloudinary(req.files.imagen[0].path);
         }
         if (req.files?.musica) {
-            deleteLocalFile(juego.musica_url);
-            musica_url = req.files.musica[0].path.replace(/\\/g, '/');
+            await deleteCloudinaryAsset(juego.musica_url);
+            musica_url = await uploadMediaToCloudinary(req.files.musica[0].path);
         }
         if (req.files?.video) {
-            deleteLocalFile(juego.video_url);
-            video = req.files.video[0].path.replace(/\\/g, '/');
+            await deleteCloudinaryAsset(juego.video_url);
+            video = await uploadMediaToCloudinary(req.files.video[0].path);
         } else if (video_url !== undefined) {
-            deleteLocalFile(juego.video_url);
+            await deleteCloudinaryAsset(juego.video_url);
             video = video_url;
         }
 
@@ -240,9 +256,9 @@ router.delete('/:id', verifyAdmin, async (req, res) => {
         if (rows.length === 0) return res.status(404).json({ error: 'Juego no encontrado' });
 
         const juego = rows[0];
-        await deleteCloudinaryImage(juego.imagen); // borra de Cloudinary
-        deleteLocalFile(juego.musica_url);
-        deleteLocalFile(juego.video_url);
+        await deleteCloudinaryAsset(juego.imagen);
+        await deleteCloudinaryAsset(juego.musica_url);
+        await deleteCloudinaryAsset(juego.video_url);
 
         await db.query('DELETE FROM juegos WHERE id = ?', [req.params.id]);
         res.json({ message: 'Juego eliminado correctamente' });

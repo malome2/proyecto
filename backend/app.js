@@ -1,6 +1,9 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
+
+const setupDB = require('./config/setupDB');
 
 const authRoutes = require('./routes/auth.routes');
 const juegosRoutes = require('./routes/juegos.routes');
@@ -14,6 +17,8 @@ const app = express();
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',')
   : ['http://localhost:5500', 'http://127.0.0.1:5500', 'http://localhost:3000'];
+
+app.set('trust proxy', 1);
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -29,7 +34,8 @@ app.use(cors({
 
 app.use(express.json());
 app.use(globalLimiter);
-app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/juegos', juegosRoutes);
@@ -42,6 +48,7 @@ app.get('/', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Servidor iniciado en puerto ${PORT}`);
+  await setupDB().catch(err => console.error('Error configurando DB:', err.message));
 });
