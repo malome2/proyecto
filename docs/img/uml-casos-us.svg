@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 570" font-family="'Segoe UI',Arial,sans-serif">
+
+  <!-- Background -->
+  <rect width="920" height="570" fill="#f8fafc"/>
+
+  <!-- Title -->
+  <text x="460" y="22" text-anchor="middle" font-size="13" font-weight="bold" fill="#1e293b">Diagrama de Casos d'Ús — Museu Virtual de Videojocs</text>
+
+  <!-- System boundary -->
+  <rect x="175" y="42" width="660" height="490" rx="5" fill="white" stroke="#94a3b8" stroke-width="1.8"/>
+  <text x="505" y="63" text-anchor="middle" font-size="9.5" fill="#64748b" font-style="italic">«sistema»</text>
+  <text x="505" y="80" text-anchor="middle" font-size="12" font-weight="bold" fill="#1e293b">Museu Virtual de Videojocs</text>
+
+  <!-- Column dividers -->
+  <line x1="388" y1="92" x2="388" y2="524" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="5,3"/>
+  <line x1="602" y1="92" x2="602" y2="524" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="5,3"/>
+
+  <!-- Column headers -->
+  <text x="282" y="104" text-anchor="middle" font-size="9" fill="#94a3b8" font-style="italic">Accés lliure</text>
+  <text x="495" y="104" text-anchor="middle" font-size="9" fill="#94a3b8" font-style="italic">Usuari autenticat</text>
+  <text x="713" y="104" text-anchor="middle" font-size="9" fill="#94a3b8" font-style="italic">Administrador</text>
+
+  <!-- ── ACTOR: Visitant ── -->
+  <circle cx="72" cy="130" r="12" fill="none" stroke="#1e293b" stroke-width="1.5"/>
+  <line x1="72" y1="142" x2="72" y2="172" stroke="#1e293b" stroke-width="1.5"/>
+  <line x1="54" y1="155" x2="90" y2="155" stroke="#1e293b" stroke-width="1.5"/>
+  <line x1="72" y1="172" x2="57" y2="192" stroke="#1e293b" stroke-width="1.5"/>
+  <line x1="72" y1="172" x2="87" y2="192" stroke="#1e293b" stroke-width="1.5"/>
+  <text x="72" y="210" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#1e293b">Visitant</text>
+
+  <!-- Generalization arrow: Usuari → Visitant -->
+  <line x1="72" y1="275" x2="72" y2="224" stroke="#475569" stroke-width="1.5"/>
+  <polygon points="72,214 65,228 79,228" fill="white" stroke="#475569" stroke-width="1.5"/>
+  <text x="94" y="252" font-size="8" fill="#94a3b8">generalitza</text>
+
+  <!-- ── ACTOR: Usuari ── -->
+  <circle cx="72" cy="325" r="12" fill="none" stroke="#1e293b" stroke-width="1.5"/>
+  <line x1="72" y1="337" x2="72" y2="367" stroke="#1e293b" stroke-width="1.5"/>
+  <line x1="54" y1="350" x2="90" y2="350" stroke="#1e293b" stroke-width="1.5"/>
+  <line x1="72" y1="367" x2="57" y2="387" stroke="#1e293b" stroke-width="1.5"/>
+  <line x1="72" y1="367" x2="87" y2="387" stroke="#1e293b" stroke-width="1.5"/>
+  <text x="72" y="405" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#1e293b">Usuari</text>
+  <text x="72" y="418" text-anchor="middle" font-size="9" fill="#64748b">(USER)</text>
+
+  <!-- ── ACTOR: Administrador ── -->
+  <circle cx="858" cy="265" r="12" fill="none" stroke="#1e293b" stroke-width="1.5"/>
+  <line x1="858" y1="277" x2="858" y2="307" stroke="#1e293b" stroke-width="1.5"/>
+  <line x1="840" y1="290" x2="876" y2="290" stroke="#1e293b" stroke-width="1.5"/>
+  <line x1="858" y1="307" x2="843" y2="327" stroke="#1e293b" stroke-width="1.5"/>
+  <line x1="858" y1="307" x2="873" y2="327" stroke="#1e293b" stroke-width="1.5"/>
+  <text x="858" y="345" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#1e293b">Administrador</text>
+  <text x="858" y="358" text-anchor="middle" font-size="9" fill="#64748b">(ADMIN)</text>
+
+  <!-- ── USE CASES: Column A — Accés lliure (x=282) ── -->
+  <ellipse cx="282" cy="138" rx="90" ry="16" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.2"/>
+  <text x="282" y="142" text-anchor="middle" font-size="9.5" fill="#1e40af">Visitar museu 3D</text>
+
+  <ellipse cx="282" cy="210" rx="90" ry="16" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.2"/>
+  <text x="282" y="214" text-anchor="middle" font-size="9.5" fill="#1e40af">Consultar catàleg</text>
+
+  <ellipse cx="282" cy="282" rx="90" ry="16" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.2"/>
+  <text x="282" y="286" text-anchor="middle" font-size="9.5" fill="#1e40af">Fer donació anònima</text>
+
+  <!-- ── USE CASES: Column B — Usuari autenticat (x=495) ── -->
+  <ellipse cx="495" cy="138" rx="93" ry="16" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.2"/>
+  <text x="495" y="142" text-anchor="middle" font-size="9.5" fill="#14532d">Registrar-se</text>
+
+  <ellipse cx="495" cy="210" rx="93" ry="16" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.2"/>
+  <text x="495" y="214" text-anchor="middle" font-size="9.5" fill="#14532d">Iniciar / Tancar sessió</text>
+
+  <ellipse cx="495" cy="290" rx="93" ry="16" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.2"/>
+  <text x="495" y="294" text-anchor="middle" font-size="9.5" fill="#14532d">Enviar recomanació</text>
+
+  <ellipse cx="495" cy="370" rx="93" ry="16" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.2"/>
+  <text x="495" y="374" text-anchor="middle" font-size="9.5" fill="#14532d">Gestionar perfil</text>
+
+  <ellipse cx="495" cy="450" rx="93" ry="16" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.2"/>
+  <text x="495" y="454" text-anchor="middle" font-size="9.5" fill="#14532d">Recuperar contrasenya</text>
+
+  <!-- ── USE CASES: Column C — Administrador (x=713) ── -->
+  <ellipse cx="713" cy="185" rx="93" ry="16" fill="#fef9c3" stroke="#f59e0b" stroke-width="1.2"/>
+  <text x="713" y="189" text-anchor="middle" font-size="9.5" fill="#451a03">Gestionar jocs</text>
+
+  <ellipse cx="713" cy="295" rx="93" ry="16" fill="#fef9c3" stroke="#f59e0b" stroke-width="1.2"/>
+  <text x="713" y="299" text-anchor="middle" font-size="9.5" fill="#451a03">Aprovar recomanacions</text>
+
+  <ellipse cx="713" cy="405" rx="93" ry="16" fill="#fef9c3" stroke="#f59e0b" stroke-width="1.2"/>
+  <text x="713" y="409" text-anchor="middle" font-size="9.5" fill="#451a03">Gestionar usuaris</text>
+
+  <!-- ── CONNECTIONS: Visitant → Column A ── -->
+  <line x1="84" y1="130" x2="192" y2="138" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="84" y1="130" x2="192" y2="210" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="84" y1="130" x2="192" y2="282" stroke="#94a3b8" stroke-width="1"/>
+
+  <!-- ── CONNECTIONS: Usuari → Column B ── -->
+  <line x1="84" y1="325" x2="402" y2="138" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="84" y1="325" x2="402" y2="210" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="84" y1="325" x2="402" y2="290" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="84" y1="325" x2="402" y2="370" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="84" y1="325" x2="402" y2="450" stroke="#94a3b8" stroke-width="1"/>
+
+  <!-- ── CONNECTIONS: Administrador → Column C ── -->
+  <line x1="845" y1="265" x2="806" y2="185" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="845" y1="265" x2="806" y2="295" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="845" y1="265" x2="806" y2="405" stroke="#94a3b8" stroke-width="1"/>
+
+  <!-- Inheritance note -->
+  <rect x="175" y="524" width="660" height="18" fill="#f1f5f9"/>
+  <text x="505" y="536" text-anchor="middle" font-size="8.5" fill="#64748b">Nota: Usuari hereta totes les capacitats de Visitant · Administrador hereta totes les capacitats d'Usuari</text>
+
+</svg>

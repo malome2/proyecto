@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 560" font-family="'Segoe UI',Arial,sans-serif">
+
+  <!-- White background -->
+  <rect width="860" height="560" fill="white"/>
+
+  <!-- Title -->
+  <text x="430" y="18" text-anchor="middle" font-size="11" font-weight="bold" fill="#111">Wireframe — museo.html</text>
+
+  <!-- Page frame -->
+  <rect x="20" y="26" width="820" height="526" fill="white" stroke="#111" stroke-width="1.5"/>
+
+  <!-- ── NAVBAR ── -->
+  <rect x="20" y="26" width="820" height="38" fill="#111"/>
+  <rect x="32" y="32" width="44" height="22" rx="2" fill="none" stroke="white" stroke-width="1"/>
+  <text x="54" y="47" text-anchor="middle" font-size="8" fill="white">LOGO</text>
+  <text x="170" y="49" text-anchor="middle" font-size="9" fill="#888">Inici</text>
+  <text x="244" y="49" text-anchor="middle" font-size="9" fill="white" font-weight="bold">Museu 3D</text>
+  <text x="324" y="49" text-anchor="middle" font-size="9" fill="#888">Qui som</text>
+  <text x="400" y="49" text-anchor="middle" font-size="9" fill="#888">Donació</text>
+  <text x="760" y="49" text-anchor="middle" font-size="9" fill="#aaa">Hola, Usuari ▾</text>
+
+  <!-- ── CANVAS 3D (fills viewport) ── -->
+  <rect x="20" y="64" width="820" height="390" fill="#f0f0f0" stroke="#111" stroke-width="1"/>
+
+  <!-- Ceiling zone -->
+  <rect x="20" y="64" width="820" height="140" fill="#e0e0e0"/>
+  <text x="430" y="128" text-anchor="middle" font-size="9" fill="#aaa">[sostre]</text>
+
+  <!-- Floor zone -->
+  <rect x="20" y="354" width="820" height="100" fill="#e8e8e8"/>
+  <text x="430" y="400" text-anchor="middle" font-size="9" fill="#aaa">[terra]</text>
+
+  <!-- Left wall slice -->
+  <polygon points="20,64 220,164 220,354 20,454" fill="#d0d0d0" stroke="#999" stroke-width="0.8"/>
+  <!-- Right wall slice -->
+  <polygon points="840,64 640,164 640,354 840,454" fill="#d0d0d0" stroke="#999" stroke-width="0.8"/>
+  <!-- Center wall strip -->
+  <rect x="220" y="164" width="420" height="190" fill="#ccc" stroke="#999" stroke-width="0.8"/>
+
+  <!-- Game poster on center wall -->
+  <rect x="340" y="174" width="180" height="140" fill="white" stroke="#111" stroke-width="1.5"/>
+  <!-- X through placeholder -->
+  <line x1="340" y1="174" x2="520" y2="314" stroke="#bbb" stroke-width="1"/>
+  <line x1="520" y1="174" x2="340" y2="314" stroke="#bbb" stroke-width="1"/>
+  <text x="430" y="250" text-anchor="middle" font-size="10" fill="#888">Portada</text>
+  <text x="430" y="264" text-anchor="middle" font-size="8" fill="#aaa">del joc</text>
+
+  <!-- Crosshair -->
+  <line x1="420" y1="248" x2="440" y2="248" stroke="#111" stroke-width="1.5"/>
+  <line x1="430" y1="238" x2="430" y2="258" stroke="#111" stroke-width="1.5"/>
+
+  <!-- ── MINIMAP (top-left) ── -->
+  <rect x="32" y="76" width="90" height="90" rx="3" fill="white" stroke="#111" stroke-width="1.2"/>
+  <text x="77" y="94" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#111">Minimapa</text>
+  <rect x="42" y="100" width="70" height="56" fill="none" stroke="#555" stroke-width="1"/>
+  <!-- Rooms -->
+  <rect x="42" y="100" width="35" height="28" fill="none" stroke="#888" stroke-width="0.8"/>
+  <rect x="77" y="100" width="35" height="28" fill="none" stroke="#888" stroke-width="0.8"/>
+  <rect x="42" y="128" width="35" height="28" fill="none" stroke="#888" stroke-width="0.8"/>
+  <rect x="77" y="128" width="35" height="28" fill="none" stroke="#888" stroke-width="0.8"/>
+  <!-- Player dot + direction -->
+  <circle cx="77" cy="114" r="4" fill="#111"/>
+  <line x1="77" y1="114" x2="77" y2="105" stroke="#111" stroke-width="1.5"/>
+
+  <!-- ── CONTROLS HUD (top-right) ── -->
+  <rect x="698" y="76" width="130" height="100" rx="3" fill="white" stroke="#111" stroke-width="1.2"/>
+  <text x="763" y="94" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#111">Controls</text>
+  <text x="710" y="110" font-size="8" fill="#444">W / S  —  avançar / retrocedir</text>
+  <text x="710" y="124" font-size="8" fill="#444">A / D  —  desplaçar lateral</text>
+  <text x="710" y="138" font-size="8" fill="#444">← →  —  girar càmera</text>
+  <text x="710" y="152" font-size="8" fill="#444">E  —  obrir vídeo gameplay</text>
+  <text x="710" y="166" font-size="8" fill="#444">R  —  mostrar/amagar text</text>
+
+  <!-- ── GAME INFO PANEL (bottom overlay) ── -->
+  <rect x="20" y="454" width="820" height="80" fill="#111" stroke="#111" stroke-width="1"/>
+  <!-- Left: game info -->
+  <rect x="32" y="464" width="200" height="58" rx="3" fill="#222" stroke="#444" stroke-width="1"/>
+  <text x="132" y="481" text-anchor="middle" font-size="9" font-weight="bold" fill="white">Títol del joc actiu</text>
+  <text x="132" y="495" text-anchor="middle" font-size="8" fill="#aaa">Any: XXXX · Gènere</text>
+  <text x="132" y="508" text-anchor="middle" font-size="7.5" fill="#888">Descripció breu del joc...</text>
+  <rect x="42" y="513" width="90" height="16" rx="8" fill="white"/>
+  <text x="87" y="525" text-anchor="middle" font-size="7.5" fill="#111" font-weight="bold">Veure vídeo  [E]</text>
+
+  <!-- Center: typewriter text area -->
+  <rect x="248" y="464" width="360" height="58" rx="3" fill="#222" stroke="#444" stroke-width="1"/>
+  <text x="428" y="481" text-anchor="middle" font-size="9" font-weight="bold" fill="white">Text descriptiu (typewriter)</text>
+  <text x="428" y="496" text-anchor="middle" font-size="7.5" fill="#888">Apareix lletra a lletra en apropar-se al quadre.</text>
+  <text x="428" y="510" text-anchor="middle" font-size="7.5" fill="#888">R per expandir / col·lapsar text complet.</text>
+
+  <!-- Right: audio player -->
+  <rect x="624" y="464" width="204" height="58" rx="3" fill="#222" stroke="#444" stroke-width="1"/>
+  <text x="636" y="481" font-size="8" fill="#aaa">♪  Música:  Títol del joc</text>
+  <rect x="636" y="488" width="160" height="6" rx="3" fill="#555"/>
+  <rect x="636" y="488" width="100" height="6" rx="3" fill="white"/>
+  <text x="636" y="510" font-size="7.5" fill="#888">0:42 / 1:58</text>
+  <text x="790" y="510" text-anchor="end" font-size="10" fill="white">▐▌</text>
+
+  <!-- ── DIALOG MODAL (floating) ── -->
+  <rect x="250" y="290" width="360" height="56" rx="5" fill="white" stroke="#111" stroke-width="1.5"/>
+  <text x="430" y="310" text-anchor="middle" font-size="9" font-weight="bold" fill="#111">[ Finestra de diàleg — SPACE ]</text>
+  <text x="430" y="326" text-anchor="middle" font-size="8" fill="#555">Informació contextual del joc seleccionat.</text>
+  <text x="430" y="339" text-anchor="middle" font-size="7.5" fill="#999">Prémer SPACE per tancar</text>
+
+</svg>

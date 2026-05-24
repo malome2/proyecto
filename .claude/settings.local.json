@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(New-Item *)",
+      "Bash(pip show *)",
+      "Bash(pip install *)",
+      "Bash(python gen_pptx.py)",
+      "Bash(python *)",
+      "Bash(railway logs *)",
+      "Bash(railway variables *)"
+    ]
+  }
+}

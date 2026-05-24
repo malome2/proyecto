@@ -108,7 +108,14 @@ async function handleLogin(e) {
     const data = await res.json();
 
     if (!res.ok) {
-      showMsg('msg-login', data.error || 'Error al iniciar sesión', 'error');
+      if (res.status === 403) {
+        const email = document.getElementById('login-email').value;
+        sessionStorage.setItem('verify-email', email);
+        showVerifyStep(email);
+        setTimeout(() => showMsg('msg-verify', 'Debes verificar tu cuenta. Introduce el código que te enviamos.', 'error'), 50);
+      } else {
+        showMsg('msg-login', data.error || 'Error al iniciar sesión', 'error');
+      }
     } else {
       localStorage.setItem('token', data.token);
       localStorage.setItem('user',  JSON.stringify(data.user));

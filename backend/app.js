@@ -33,10 +33,10 @@ app.use(cors({
 }));
 
 app.use(express.json());
-app.use(globalLimiter);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.static(path.join(__dirname, '../frontend')));
 
+app.use('/api', globalLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/juegos', juegosRoutes);
 app.use('/api/recomendaciones', recomendacionesRoutes);
